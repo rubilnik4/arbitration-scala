@@ -5,39 +5,62 @@ import arbitration.application.commands.SpreadCommandHandler
 import arbitration.application.queries.MarketData
 import arbitration.domain.MarketError
 import arbitration.domain.models.{AssetId, AssetSpreadId, Price, Spread}
+import arbitration.infrastructure.MarketRepository
+import arbitration.infrastructure.caches.{PriceCache, SpreadCache}
 import zio.ZIO
 
+import java.time.Instant
+
 class SpreadCommandHandlerImpl extends SpreadCommandHandler {
-    private def getPrice(assetId: AssetId): ZIO[MarketData with Logging, MarketError, Price] =
-      for {
-        data <- ZIO.service[MarketData]
-        logger <- ZIO.service[Logging]
-        result <- data.getPrice(assetId)
-          .catchAll { _ =>
-            data.getLastPrice(assetId)
-              .tapBoth(
-                _ => logger.error(s"No price available at all ${assetId.value}"),
-                _ => logger.info(s"Using last price for ${assetId.value}")
-              )
-          }
-      } yield result
-    
-    override def execute(cmd: SpreadCommand): ZIO[Environment, MarketError, Spread] = {
-      val normalizedIds = AssetSpreadId.normalize(cmd.assetA, cmd.assetB)
+  private def getPrice(assetId: AssetId): ZIO[MarketData, MarketError, Price] =
+    for {
+      marketData <- ZIO.service[MarketData]
+      _ <- ZIO.logInfo(s"Fetching price for $assetId")
+      result <- marketData.getPrice(assetId)
+        .catchAll { _ =>
+          marketData.getLastPrice(assetId)
+            .tapError(_ => ZIO.logError(s"No price at all for $assetId"))
+            .tap(_ => ZIO.logInfo(s"Using last price for $assetId"))
+        }
+    } yield result
 
-      for {
-        env     <- ZIO.environment[Environment]
-        logger  <- ZIO.service[Logging]
-        _       <- logger.info(s"Executing spread command for ${normalizedIds._1.value}-${normalizedIds._2.value}")
+  private def getSpread(priceA: Price, priceB: Price): Spread = {
+    val spreadValue = (priceA.value - priceB.value).abs
+    Spread(priceA, priceB, spreadValue, Instant.now())
+  }
 
-        priceA  <- getPrice(normalizedIds._1)
-        priceB  <- getPrice(normalizedIds._2)
+  private def removeSpreadCache(spread: Spread): ZIO[SpreadCache with PriceCache, MarketError, Unit] =
+    for {
+      priceCache <- ZIO.service[PriceCache]
+      spreadCache <- ZIO.service[SpreadCache]
+      _ <- priceCache.remove(spread.priceA.asset)
+      _ <- priceCache.remove(spread.priceB.asset)
+      _ <- spreadCache.remove(Spread.toAssetSpread(spread))
+    } yield ()
 
-        spread   = getSpread(priceA, priceB)
-        _       <- saveSpread(spread)
+  private def saveSpread(spread: Spread): ZIO[MarketRepository, MarketError, AssetId] =
+    for {
+      repo <- ZIO.service[MarketRepository]
+      assetId <- repo.saveSpread(spread)
+      _ <- removeSpreadCache(spread)
+      _ <- ZIO.logInfo(s"Spread saved with id: ${assetId}")
+    } yield id
 
-        config  <- ZIO.service[ConfigService]
-        _       <- ZIO.succeed(updateState(env.getState, spread, config.spreadThreshold))
-      } yield spread
-    }
+  override def execute(cmd: SpreadCommand): ZIO[Environment, MarketError, Spread] = {
+    val normalizedIds = AssetSpreadId.normalize(cmd.assetA, cmd.assetB)
+
+    for {
+      env <- ZIO.environment[Environment]
+      _ <- ZIO.logInfo(s"Executing spread command for $normalizedIds")
+
+      priceA <- getPrice(normalizedIds.assetA)
+      priceB <- getPrice(normalizedIds.assetB)
+
+      spread = getSpread(priceA, priceB)
+      _ <- saveSpread(spread)
+
+      config <- ZIO.service[ConfigService]
+      _ <- ZIO.succeed(updateState(env.getState, spread, config.spreadThreshold))
+    } yield spread
+  }
 }
