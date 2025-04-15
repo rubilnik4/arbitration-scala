@@ -5,6 +5,9 @@ import java.time.Instant
 
 final case class Spread(priceA: Price, priceB: Price, value: BigDecimal, time: Instant)
 
+final case class SpreadState(lastSpread: Option[BigDecimal], spreadHistory: List[BigDecimal], 
+                             isThresholdExceeded: Boolean)
+
 object Spread {
   def toAssetSpread(spread: Spread): AssetSpreadId =
     AssetSpreadId(spread.priceA.asset, spread.priceB.asset)
