@@ -1,0 +1,3 @@
+package arbitration.application.commands
+
+class SpreadCommandHandlerImpl
