@@ -1,4 +1,4 @@
-package arbitration.domain
+package arbitration.domain.models
 
 import java.time.Instant
 

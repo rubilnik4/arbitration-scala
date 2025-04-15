@@ -1,3 +1,3 @@
 package arbitration.infrastructure
 
-case class MarketRepository()
+final case class MarketRepository()
