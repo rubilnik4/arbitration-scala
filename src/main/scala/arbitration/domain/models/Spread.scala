@@ -1,6 +1,11 @@
 package arbitration.domain.models
 
 import java.time.Instant
+import java.util.UUID
+
+final case class SpreadId(id: UUID) extends AnyVal {
+  override def toString: String = id.toString
+}
 
 final case class Spread(priceA: Price, priceB: Price, value: BigDecimal, time: Instant)
 

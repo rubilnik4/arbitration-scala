@@ -7,7 +7,7 @@ import zio.ZIO
 
 import java.time.Instant
 
-class SpreadCommandHandlerImpl extends SpreadCommandHandler {
+final class SpreadCommandHandlerImpl extends SpreadCommandHandler {
   private def getPrice(assetId: AssetId): ZIO[AppEnv, MarketError, Price] =
     for {
       marketData <- ZIO.serviceWith[AppEnv](_.marketData)
@@ -34,13 +34,13 @@ class SpreadCommandHandlerImpl extends SpreadCommandHandler {
       _ <- spreadCache.remove(Spread.toAssetSpread(spread))
     } yield ()
 
-  private def saveSpread(spread: Spread): ZIO[AppEnv, MarketError, AssetId] =
+  private def saveSpread(spread: Spread): ZIO[AppEnv, MarketError, SpreadId] =
     for {
       marketRepository <- ZIO.serviceWith[AppEnv](_.marketRepository)
-      assetId <- marketRepository.saveSpread(spread)
+      spreadId <- marketRepository.saveSpread(spread)
       _ <- removeSpreadCache(spread)
-      _ <- ZIO.logInfo(s"Spread saved with id: $assetId")
-    } yield assetId
+      _ <- ZIO.logInfo(s"Spread saved with id: $spreadId")
+    } yield spreadId
 
   private def updateState(state: SpreadState, spread: Spread): ZIO[AppEnv, MarketError, SpreadState] =
     for {
