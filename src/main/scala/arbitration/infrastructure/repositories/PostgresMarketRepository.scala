@@ -3,8 +3,8 @@ package arbitration.infrastructure.repositories
 import arbitration.domain.MarketError
 import arbitration.domain.MarketError.{DatabaseError, NotFound}
 import arbitration.domain.entities.{PriceEntity, PriceMapper, SpreadEntity, SpreadMapper}
-import arbitration.domain.models.AssetSpreadId.toKey
 import arbitration.domain.models.*
+import arbitration.domain.models.AssetSpreadId.toKey
 import io.getquill.*
 import io.getquill.jdbczio.Quill
 import zio.*
@@ -12,7 +12,6 @@ import zio.*
 import java.sql.{SQLException, Timestamp}
 import java.time.Instant
 import java.util.UUID
-import javax.sql.DataSource
 
 implicit val encodeInstant: MappedEncoding[Instant, Timestamp] =
   MappedEncoding(instant => Timestamp.from(instant))
@@ -22,7 +21,7 @@ implicit val decodeInstant: MappedEncoding[Timestamp, Instant] =
 
 final class PostgresMarketRepository(quill: Quill.Postgres[SnakeCase]) extends MarketRepository {
   private def savePrice(price: Price): ZIO[Any, SQLException, UUID] = {
-    import quill._
+    import quill.*
 
     val priceEntity = PriceMapper.toEntity(price)
 
@@ -50,7 +49,7 @@ final class PostgresMarketRepository(quill: Quill.Postgres[SnakeCase]) extends M
   }
 
   override def saveSpread(spread: Spread): ZIO[Any, MarketError, SpreadId] = {
-    import quill._
+    import quill.*
 
     (for {
       _ <- ZIO.logDebug(s"Saving spread $spread to database")
@@ -89,7 +88,7 @@ final class PostgresMarketRepository(quill: Quill.Postgres[SnakeCase]) extends M
   }
 
   override def getLastPrice(assetId: AssetId): ZIO[Any, MarketError, Price] = {
-    import quill._
+    import quill.*
 
     ZIO.logDebug(s"Getting last price $assetId from database")
     val select = quote {
@@ -112,7 +111,7 @@ final class PostgresMarketRepository(quill: Quill.Postgres[SnakeCase]) extends M
   }
 
   override def getLastSpread(assetSpreadId: AssetSpreadId): ZIO[Any, MarketError, Spread] = {
-    import quill._
+    import quill.*
 
     val select = quote {
       query[SpreadEntity]

@@ -17,9 +17,6 @@ trait AppEnv {
   def spreadCache: SpreadCache
   def marketRepository: MarketRepository
   def marketData: MarketData
-
-  def quillDatabaseContext: QuillDatabaseContext
-  def dataSource: DataSource
 //  def cache: SpreadCache
 //  def priceProvider: PriceProvider
 //  def state: Ref[SpreadState]
