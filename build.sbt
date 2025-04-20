@@ -12,6 +12,7 @@ lazy val root = (project in file("."))
       "dev.zio" %% "zio-http" % "3.2.0",
       "dev.zio" %% "zio-logging" % "2.5.0",
       "dev.zio" %% "zio-json" % "0.7.42",
+      "dev.zio" %% "zio-cache" % "0.2.4",
       "dev.zio" %% "zio-test" % "2.1.17" % Test,
       "dev.zio" %% "zio-test-sbt" % "2.1.17" % Test,
       "org.postgresql" % "postgresql" % "42.7.5",
