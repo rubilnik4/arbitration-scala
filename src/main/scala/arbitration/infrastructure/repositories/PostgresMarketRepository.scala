@@ -141,7 +141,6 @@ final class PostgresMarketRepository(quill: Quill.Postgres[SnakeCase]) extends M
         case sql: SQLException => DatabaseError("Failed to load spread", sql)
         case notFound: arbitration.domain.MarketError => notFound
       }
-  }
-  
+  }  
 }
 
