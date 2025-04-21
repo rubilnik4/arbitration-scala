@@ -1,5 +1,5 @@
 package arbitration.application.configurations
 
-import java.time.Duration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
-final case class CacheConfig(priceExpiration: Duration, spreadExpiration: Duration)
+final case class CacheConfig(priceExpiration: FiniteDuration , spreadExpiration: FiniteDuration)

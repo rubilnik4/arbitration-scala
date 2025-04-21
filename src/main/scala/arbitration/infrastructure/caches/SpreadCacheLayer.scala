@@ -3,6 +3,7 @@ package arbitration.infrastructure.caches
 import arbitration.application.AppEnv
 import zio.cache.{Cache, Lookup}
 import zio.{ZIO, ZLayer}
+import scala.jdk.DurationConverters.*
 
 object SpreadCacheLayer {
   val live: ZLayer[AppEnv, Nothing, SpreadCache] =
@@ -13,7 +14,7 @@ object SpreadCacheLayer {
 
         cache <- Cache.make(
           capacity = 1000,
-          timeToLive = expiration,
+          timeToLive = expiration.toJava,
           lookup = Lookup(repository.getLastSpread)
         )
 

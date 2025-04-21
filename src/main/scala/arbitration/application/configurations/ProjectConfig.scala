@@ -1,8 +1,8 @@
 package arbitration.application.configurations
 
-import java.time.Duration
+import scala.concurrent.duration.Duration
 
-final case class AssetConfig (AssetA: String, AssetB: String)
+final case class AssetConfig (assetA: String, assetB: String)
 
-final case class ProjectConfig(maxHistorySize: Int, spreadThreshold: BigDecimal, AssetLoadingDelay: Duration,
+final case class ProjectConfig(maxHistorySize: Int, spreadThreshold: BigDecimal, assetLoadingDelay: Duration,
                                assets: AssetConfig)

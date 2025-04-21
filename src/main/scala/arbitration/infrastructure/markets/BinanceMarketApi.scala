@@ -11,10 +11,8 @@ import zio.{Cause, Task, ZIO}
 import java.time.Instant
 import scala.concurrent.duration.DurationInt
 
-case class BinancePrice(symbol: String, price: String, time: Long)
-
 final class BinanceMarketApi(backend: SttpBackend[Task, Any]) extends MarketApi {
-  private val baseUrl = "https://dapi.binance.com/dapi/v1"
+  private val baseUrl = "https://fapi.binance.com/fapi/v1"
   private val timeout = 30.seconds
 
   override def getPrice(assetId: AssetId): ZIO[Any, MarketError, Price] = {

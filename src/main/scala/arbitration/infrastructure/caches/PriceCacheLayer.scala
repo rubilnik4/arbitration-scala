@@ -4,6 +4,7 @@ import arbitration.application.AppEnv
 import arbitration.domain.models.{AssetId, Price}
 import zio.cache.{Cache, Lookup}
 import zio.{ZIO, ZLayer}
+import scala.jdk.DurationConverters.*
 
 object PriceCacheLayer {
   val live: ZLayer[AppEnv, Nothing, PriceCache] =
@@ -14,7 +15,7 @@ object PriceCacheLayer {
 
         cache <- Cache.make(
           capacity = 1000,
-          timeToLive = expiration,
+          timeToLive = expiration.toJava,
           lookup = Lookup(repository.getLastPrice)
         )
         memoryCache = new MemoryCacheLive(cache)
