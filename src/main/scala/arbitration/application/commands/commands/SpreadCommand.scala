@@ -1,4 +1,4 @@
-package arbitration.application.commands
+package arbitration.application.commands.commands
 
 import arbitration.application.AppEnv
 import arbitration.domain.MarketError

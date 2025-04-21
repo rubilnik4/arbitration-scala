@@ -1,6 +1,7 @@
-package arbitration.application.commands
+package arbitration.application.commands.handlers
 
 import arbitration.application.AppEnv
+import arbitration.application.commands.commands.SpreadCommand
 import arbitration.domain.MarketError
 import arbitration.domain.models.*
 import zio.ZIO

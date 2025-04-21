@@ -3,8 +3,6 @@ package arbitration.application.queries
 import arbitration.application.AppEnv
 import arbitration.domain.MarketError
 import arbitration.domain.models.{AssetId, AssetSpreadId, Price, Spread}
-import arbitration.infrastructure.caches.{MarketCache, PriceCache, SpreadCache}
-import arbitration.infrastructure.repositories.MarketRepository
 import zio.ZIO
 
 final class MarketDataLive extends MarketData {
