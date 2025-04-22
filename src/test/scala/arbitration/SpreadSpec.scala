@@ -1,42 +1,33 @@
 package arbitration
 
+import arbitration.application.AppEnv
+import arbitration.application.commands.commands.SpreadCommand
+import arbitration.application.commands.handlers.SpreadCommandHandlerLive
 import arbitration.domain.MarketError
-import arbitration.domain.models.{AssetId, AssetSpreadId}
-import arbitration.infrastructure.db.Migration
-import arbitration.infrastructure.markets.BinanceMarketApi
-import arbitration.infrastructure.repositories.{MarketRepository, PostgresMarketRepositoryLive}
-import com.dimafeng.testcontainers.PostgreSQLContainer
-import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import io.getquill.{PostgresJdbcContext, SnakeCase}
-import io.getquill.jdbczio.Quill
-import org.testcontainers.utility.DockerImageName
-import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
-import zio.{Scope, ZIO, ZLayer}
+import arbitration.domain.models.*
+import arbitration.environment.TestAppEnvLayer
+import zio.{Scope, ZIO}
 import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
 
-import javax.sql.DataSource
 
-//object SpreadSpec extends ZIOSpecDefault {
+object SpreadSpec extends ZIOSpecDefault {
+  def spec: Spec[TestEnvironment with Scope, Any] = suite("Spread integration tests")(
+    test("Should save spread successfully") {
+      for {
+        env <- ZIO.service[AppEnv]
+        project = env.appConfig.project
+        spreadAssetId = AssetSpreadId(AssetId(project.assets.assetA), AssetId(project.assets.assetB))
+        spreadCommand = SpreadCommand(SpreadState.Init(), spreadAssetId)
+        spreadHandler = SpreadCommandHandlerLive()
 
-//  def spec = suite("Spread integration tests")(
-//    test("Should save spread successfully") {
-//      for {
-//        env <- ZIO.service[AppEnv]
-//        project = env.Infra.Config.Project
-//        spreadAssetId = AssetSpreadId(project.Assets.AssetA, project.Assets.AssetB)
-//        resultWithState <- spreadCommand(env)(SpreadState.Init, spreadAssetId)
-//        (result, _) = resultWithState
-//      } yield result match {
-//        case Right(spread) =>
-//          assertTrue(
-//            spread.Value > 0,
-//            spread.Value == (spread.PriceA.Value - spread.PriceB.Value).abs,
-//            getAssetSpreadId(spread) == normalizeSpreadAsset(spreadAssetId)
-//          )
-//        case Left(err) => fail(s"Failed to compute spread: $err")
-//      }
-//    },
-//
+        spreadResult <- SpreadCommandHandlerLive().execute(spreadCommand)
+      } yield assertTrue(
+        spreadResult.spread.value > 0,
+        Spread.toAssetSpread(spreadResult.spread) == AssetSpreadId.normalize(spreadAssetId),
+        spreadResult.spreadState.lastSpread.contains(spreadResult.spread.value)
+      )
+    },
+
 //    test("Should retrieve last price for asset") {
 //      for {
 //        env <- ZIO.service[AppEnv]
@@ -63,5 +54,5 @@ import javax.sql.DataSource
 //        case Left(err) => fail(s"Failed to get last spread: $err")
 //      }
 //    }
-//  ).provideLayerShared(testEnvLayer) @@ sequential
-//}
+  ).provideLayerShared(TestAppEnvLayer.testAppEnvLive) //@@ sequential
+}
