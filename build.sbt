@@ -19,6 +19,7 @@ lazy val root = (project in file("."))
       "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.43.0" % Test,
       "org.postgresql" % "postgresql" % "42.7.5",
       "org.flywaydb" % "flyway-core" % "11.7.2",
+      "org.flywaydb" % "flyway-database-postgresql" % "11.7.2",
       "io.getquill" %% "quill-jdbc-zio" % "4.8.6",
       "com.softwaremill.sttp.client3" %% "core" % "3.11.0",
       "com.softwaremill.sttp.client3" %% "zio-json" % "3.11.0",

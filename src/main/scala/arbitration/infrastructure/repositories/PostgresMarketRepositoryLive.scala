@@ -26,16 +26,14 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
     val priceEntity = PriceMapper.toEntity(price)
 
     val insert = quote {
-      query[PriceEntity]
+      priceTable
         .insertValue(lift(priceEntity))
         .returning(_.id)
     }
 
     val select = quote {
-      query[PriceEntity]
-        .filter(p =>
-          p.asset == lift(priceEntity.asset) && p.time == lift(priceEntity.time)
-        )
+      priceTable
+        .filter(p => p.asset == lift(priceEntity.asset) && p.time == lift(priceEntity.time))
         .map(_.id)
     }
 
@@ -43,8 +41,7 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
       .catchSome { case _: SQLException =>
         run(select).flatMap {
           case head :: _ => ZIO.succeed(head)
-          case Nil =>
-            ZIO.fail(new SQLException("Price not found after insert fail"))
+          case Nil => ZIO.fail(new SQLException("Price not found after insert fail"))
         }
       }
 
@@ -53,9 +50,7 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
   override def saveSpread(spread: Spread): ZIO[Any, MarketError, SpreadId] = {
     import quill.*
 
-    (for {
-      _ <- ZIO.logDebug(s"Saving spread $spread to database")
-
+    (for {      
       priceAId <- savePrice(spread.priceA)
       priceBId <- savePrice(spread.priceB)
 
@@ -63,18 +58,14 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
 
       spreadId <- {
         val insert = quote {
-          query[SpreadEntity]
+          spreadTable
             .insertValue(lift(spreadEntity))
             .returning(_.id)
         }
 
         val select = quote {
-          query[SpreadEntity]
-            .filter(s =>
-              s.assetSpreadId == lift(
-                spreadEntity.assetSpreadId
-              ) && s.time == lift(spreadEntity.time)
-            )
+          spreadTable
+            .filter(s => s.assetSpreadId == lift(spreadEntity.assetSpreadId) && s.time == lift(spreadEntity.time))
             .map(_.id)
         }
 
@@ -87,26 +78,17 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
         }
       }
     } yield SpreadId(spreadId))
-      .tapError(e =>
-        ZIO.logErrorCause(
-          s"Failed to save spread $spread to database",
-          Cause.fail(e)
-        )
-      )
+      .tapError(e => ZIO.logErrorCause(s"Failed to save spread $spread to database", Cause.fail(e)))
       .mapError {
-        DatabaseError(
-          s"Failed to save spread $spread to database",
-          _: SQLException
-        )
+        DatabaseError(s"Failed to save spread $spread to database", _: SQLException)
       }
   }
 
   override def getLastPrice(assetId: AssetId): ZIO[Any, MarketError, Price] = {
     import quill.*
-
-    ZIO.logDebug(s"Getting last price $assetId from database")
+    
     val select = quote {
-      query[PriceEntity]
+      priceTable
         .filter(_.asset == lift(assetId.id))
         .sortBy(_.time)(Ord.desc)
         .take(1)
@@ -118,10 +100,7 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
         case Nil => ZIO.fail(NotFound(s"Price for asset '$assetId' not found"))
       }
       .tapError(e =>
-        ZIO.logErrorCause(
-          s"Failed to get last price $assetId to database",
-          Cause.fail(e)
-        )
+        ZIO.logErrorCause(s"Failed to get last price $assetId to database", Cause.fail(e))
       )
       .mapError {
         case sql: SQLException => DatabaseError("Failed to load price", sql)
@@ -129,16 +108,14 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
       }
   }
 
-  override def getLastSpread(
-      assetSpreadId: AssetSpreadId
-  ): ZIO[Any, MarketError, Spread] = {
+  override def getLastSpread(assetSpreadId: AssetSpreadId): ZIO[Any, MarketError, Spread] = {
     import quill.*
 
     val select = quote {
-      query[SpreadEntity]
-        .join(query[PriceEntity])
+      spreadTable
+        .join(priceTable)
         .on((s, pa) => s.priceAId == pa.id)
-        .join(query[PriceEntity])
+        .join(priceTable)
         .on { case ((s, pa), pb) => s.priceBId == pb.id }
         .filter { case ((s, _), _) =>
           s.assetSpreadId == lift(toKey(assetSpreadId))
@@ -171,5 +148,13 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
         case sql: SQLException => DatabaseError("Failed to load spread", sql)
         case notFound: arbitration.domain.MarketError => notFound
       }
+  }
+
+  private inline def priceTable = quote {
+    querySchema[PriceEntity]("prices")
+  }
+
+  private inline def spreadTable = quote {
+    querySchema[SpreadEntity]("spreads")
   }
 }

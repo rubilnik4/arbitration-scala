@@ -11,7 +11,7 @@ import zio.{ZEnvironment, ZIO, ZLayer}
 import javax.sql.DataSource
 
 object TestMarketRepositoryLayer {
-  private final val postgresVersion = DockerImageName.parse("postgres:15")
+  private final val postgresVersion = DockerImageName.parse("postgres:17")
 
   private val postgresLayer: ZLayer[Any, Throwable, PostgreSQLContainer] =
     ZLayer.scoped {
