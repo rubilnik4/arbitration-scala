@@ -1,6 +1,6 @@
 package arbitration.domain.models
 
-final case class AssetId(id: String) extends AnyVal{
+final case class AssetId(id: String) extends AnyVal {
   override def toString: String = id
 }
 
@@ -12,9 +12,9 @@ object AssetSpreadId {
   def normalize(assetSpreadId: AssetSpreadId): AssetSpreadId =
     if (assetSpreadId.assetA.id < assetSpreadId.assetB.id)
       assetSpreadId
-    else 
+    else
       AssetSpreadId(assetSpreadId.assetB, assetSpreadId.assetA)
-    
+
   def toKey(assetSpread: AssetSpreadId): String =
     s"${assetSpread.assetA.id}|${assetSpread.assetB.id}"
 }

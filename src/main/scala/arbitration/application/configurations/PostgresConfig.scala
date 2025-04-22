@@ -1,3 +1,3 @@
 package arbitration.application.configurations
 
-case class PostgresConfig (connectionString: String)
+case class PostgresConfig(connectionString: String)

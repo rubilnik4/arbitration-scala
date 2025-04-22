@@ -1,7 +1,7 @@
 package arbitration.application.commands.handlers
 
-import arbitration.application.AppEnv
 import arbitration.application.commands.commands.SpreadCommand
+import arbitration.application.env.AppEnv
 import arbitration.domain.MarketError
 import arbitration.domain.models.*
 import zio.ZIO
@@ -13,9 +13,11 @@ final class SpreadCommandHandlerLive extends SpreadCommandHandler {
     for {
       marketData <- ZIO.serviceWith[AppEnv](_.marketData)
       _ <- ZIO.logInfo(s"Fetching price for $assetId")
-      result <- marketData.getPrice(assetId)
+      result <- marketData
+        .getPrice(assetId)
         .catchAll { _ =>
-          marketData.getLastPrice(assetId)
+          marketData
+            .getLastPrice(assetId)
             .tapError(_ => ZIO.logError(s"No price at all for $assetId"))
             .tap(_ => ZIO.logInfo(s"Using last price for $assetId"))
         }
@@ -26,7 +28,9 @@ final class SpreadCommandHandlerLive extends SpreadCommandHandler {
     Spread(priceA, priceB, spreadValue, Instant.now())
   }
 
-  private def removeSpreadCache(spread: Spread): ZIO[AppEnv, MarketError, Unit] =
+  private def removeSpreadCache(
+      spread: Spread
+  ): ZIO[AppEnv, MarketError, Unit] =
     for {
       cache <- ZIO.serviceWith[AppEnv](_.marketCache)
       _ <- cache.priceCache.invalidate(spread.priceA.asset)
@@ -42,14 +46,21 @@ final class SpreadCommandHandlerLive extends SpreadCommandHandler {
       _ <- ZIO.logInfo(s"Spread saved with id: $spreadId")
     } yield spreadId
 
-  private def updateState(state: SpreadState, spread: Spread): ZIO[AppEnv, MarketError, SpreadState] =
+  private def updateState(
+      state: SpreadState,
+      spread: Spread
+  ): ZIO[AppEnv, MarketError, SpreadState] =
     for {
       config <- ZIO.serviceWith[AppEnv](_.config.project)
-      _      <- ZIO.when(spread.value > config.spreadThreshold) {
-        ZIO.logInfo(s"Threshold ${config.spreadThreshold} exceeded for spread $spread")
+      _ <- ZIO.when(spread.value > config.spreadThreshold) {
+        ZIO.logInfo(
+          s"Threshold ${config.spreadThreshold} exceeded for spread $spread"
+        )
       }
 
-      updatedHistory = (spread.value :: state.spreadHistory).take(config.maxHistorySize)
+      updatedHistory = (spread.value :: state.spreadHistory).take(
+        config.maxHistorySize
+      )
       newState = state.copy(
         lastSpread = Some(spread.value),
         spreadHistory = updatedHistory,
@@ -57,7 +68,9 @@ final class SpreadCommandHandlerLive extends SpreadCommandHandler {
       )
     } yield newState
 
-  override def execute(cmd: SpreadCommand): ZIO[AppEnv, MarketError, SpreadResult] = {
+  override def execute(
+      cmd: SpreadCommand
+  ): ZIO[AppEnv, MarketError, SpreadResult] = {
     val assetSpreadId = AssetSpreadId.normalize(cmd.assetSpreadId)
 
     for {

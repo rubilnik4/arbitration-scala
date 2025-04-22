@@ -5,7 +5,12 @@ import arbitration.domain.models.{AssetId, Price}
 import java.time.Instant
 import java.util.UUID
 
-final case class PriceEntity(id: UUID, asset: String, value: BigDecimal, time: Instant)
+final case class PriceEntity(
+    id: UUID,
+    asset: String,
+    value: BigDecimal,
+    time: Instant
+)
 
 object PriceMapper {
   def toDomain(price: PriceEntity): Price =

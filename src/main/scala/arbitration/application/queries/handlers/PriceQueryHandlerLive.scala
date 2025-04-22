@@ -1,6 +1,6 @@
 package arbitration.application.queries.handlers
 
-import arbitration.application.AppEnv
+import arbitration.application.env.AppEnv
 import arbitration.application.queries.queries.PriceQuery
 import arbitration.domain.MarketError
 import arbitration.domain.models.Price

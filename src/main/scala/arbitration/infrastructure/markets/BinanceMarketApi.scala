@@ -11,7 +11,8 @@ import zio.{Cause, Task, ZIO}
 import java.time.Instant
 import scala.concurrent.duration.DurationInt
 
-final class BinanceMarketApi(backend: SttpBackend[Task, Any]) extends MarketApi {
+final class BinanceMarketApi(backend: SttpBackend[Task, Any])
+    extends MarketApi {
   private val baseUrl = "https://fapi.binance.com/fapi/v1"
   private val timeout = 30.seconds
 
@@ -31,22 +32,38 @@ final class BinanceMarketApi(backend: SttpBackend[Task, Any]) extends MarketApi 
       price <- response.body match {
         case Right(binancePrice) =>
           for {
-            value <- ZIO.attempt(binancePrice.price.toDouble)
-              .mapError(e => ApiError("Binance API invalid price format", 500, e.getMessage))
+            value <- ZIO
+              .attempt(binancePrice.price.toDouble)
+              .mapError(e =>
+                ApiError("Binance API invalid price format", 500, e.getMessage)
+              )
 
             time = Instant.ofEpochMilli(binancePrice.time)
           } yield Price(assetId, value, time)
 
         case Left(HttpError(apiError: BinanceErrorResponse, _)) =>
           for {
-            _ <- ZIO.logError(s"Binance API error for $assetId: ${apiError.code} - ${apiError.msg}")
-            err <- ZIO.fail(ApiError(s"Binance API error", apiError.code, apiError.msg))
+            _ <- ZIO.logError(
+              s"Binance API error for $assetId: ${apiError.code} - ${apiError.msg}"
+            )
+            err <- ZIO.fail(
+              ApiError(s"Binance API error", apiError.code, apiError.msg)
+            )
           } yield err
 
         case Left(decodeErr) =>
           for {
-            _ <- ZIO.logErrorCause(s"[Binance] Unexpected error format for $assetId", Cause.fail(decodeErr))
-            err <- ZIO.fail(ApiError("Binance API unexpected error format", 500, decodeErr.getMessage))
+            _ <- ZIO.logErrorCause(
+              s"[Binance] Unexpected error format for $assetId",
+              Cause.fail(decodeErr)
+            )
+            err <- ZIO.fail(
+              ApiError(
+                "Binance API unexpected error format",
+                500,
+                decodeErr.getMessage
+              )
+            )
           } yield err
       }
     } yield price

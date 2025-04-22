@@ -22,7 +22,6 @@ object BinanceMarketApiSpec extends ZIOSpecDefault {
           } yield assertTrue(price.asset == assetId)
         }
       },
-
       test("should fail for nonexistent symbol") {
         ZIO.scoped {
           for {

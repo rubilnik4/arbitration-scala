@@ -1,13 +1,13 @@
-package arbitration.application
+package arbitration.application.env
 
 import arbitration.application.configurations.AppConfig
-import arbitration.application.queries.MarketData
-import arbitration.infrastructure.caches.{MarketCache, PriceCache, SpreadCache}
+import arbitration.application.queries.marketData.MarketData
+import arbitration.infrastructure.caches.MarketCache
 import arbitration.infrastructure.markets.MarketApi
 import arbitration.infrastructure.repositories.MarketRepository
 
 trait AppEnv {
-  def config: AppConfig
+  def appConfig: AppConfig
   def marketCache: MarketCache
   def marketRepository: MarketRepository
   def marketData: MarketData
