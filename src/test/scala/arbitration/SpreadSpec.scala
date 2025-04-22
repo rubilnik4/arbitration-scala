@@ -1,16 +1,10 @@
 package arbitration
 
-import arbitration.application.env.AppEnv
 import arbitration.domain.MarketError
 import arbitration.domain.models.{AssetId, AssetSpreadId}
-import arbitration.environment.TestConfigLayer
 import arbitration.infrastructure.db.Migration
 import arbitration.infrastructure.markets.BinanceMarketApi
-import arbitration.infrastructure.markets.BinanceMarketApiSpec.{suite, test}
-import arbitration.infrastructure.repositories.{
-  MarketRepository,
-  PostgresMarketRepositoryLive
-}
+import arbitration.infrastructure.repositories.{MarketRepository, PostgresMarketRepositoryLive}
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import io.getquill.{PostgresJdbcContext, SnakeCase}
@@ -22,19 +16,7 @@ import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
 
 import javax.sql.DataSource
 
-object SpreadSpec extends ZIOSpecDefault {
-  object Env {
-
-    val live: ZLayer[Any, Throwable, AppEnv] =
-      ZLayer.make[AppEnv](
-        // Предполагаемые базовые слои
-        TestConfigLayer.appConfig, // Слой конфигурации
-        MarketCache.live, // Слой кэша
-        Layers.marketRepositoryLayer, // Наш репозиторий
-        MarketData.live, // Слой данных рынка
-        MarketApi.live // Слой API
-      )
-  }
+//object SpreadSpec extends ZIOSpecDefault {
 
 //  def spec = suite("Spread integration tests")(
 //    test("Should save spread successfully") {
@@ -82,4 +64,4 @@ object SpreadSpec extends ZIOSpecDefault {
 //      }
 //    }
 //  ).provideLayerShared(testEnvLayer) @@ sequential
-}
+//}

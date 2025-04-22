@@ -1,7 +1,7 @@
 package arbitration.application.commands.handlers
 
+import arbitration.application.AppEnv
 import arbitration.application.commands.commands.SpreadCommand
-import arbitration.application.env.AppEnv
 import arbitration.domain.MarketError
 import arbitration.domain.models.*
 import zio.ZIO
@@ -51,20 +51,20 @@ final class SpreadCommandHandlerLive extends SpreadCommandHandler {
       spread: Spread
   ): ZIO[AppEnv, MarketError, SpreadState] =
     for {
-      config <- ZIO.serviceWith[AppEnv](_.config.project)
-      _ <- ZIO.when(spread.value > config.spreadThreshold) {
+      appConfig <- ZIO.serviceWith[AppEnv](_.appConfig.project)
+      _ <- ZIO.when(spread.value > appConfig.spreadThreshold) {
         ZIO.logInfo(
-          s"Threshold ${config.spreadThreshold} exceeded for spread $spread"
+          s"Threshold ${appConfig.spreadThreshold} exceeded for spread $spread"
         )
       }
 
       updatedHistory = (spread.value :: state.spreadHistory).take(
-        config.maxHistorySize
+        appConfig.maxHistorySize
       )
       newState = state.copy(
         lastSpread = Some(spread.value),
         spreadHistory = updatedHistory,
-        isThresholdExceeded = spread.value > config.spreadThreshold
+        isThresholdExceeded = spread.value > appConfig.spreadThreshold
       )
     } yield newState
 

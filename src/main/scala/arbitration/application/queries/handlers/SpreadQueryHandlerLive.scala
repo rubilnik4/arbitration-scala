@@ -1,6 +1,6 @@
 package arbitration.application.queries.handlers
 
-import arbitration.application.env.AppEnv
+import arbitration.application.AppEnv
 import arbitration.application.queries.queries.SpreadQuery
 import arbitration.domain.MarketError
 import arbitration.domain.models.{AssetSpreadId, Spread}

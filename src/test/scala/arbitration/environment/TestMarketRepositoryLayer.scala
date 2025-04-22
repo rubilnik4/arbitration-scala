@@ -1,14 +1,12 @@
 package arbitration.environment
 
 import arbitration.application.configurations.AppConfig
-import arbitration.infrastructure.repositories.{
-  MarketRepository,
-  PostgresMarketRepositoryLayer
-}
+import arbitration.infrastructure.db.Migration
+import arbitration.infrastructure.repositories.{MarketRepository, PostgresMarketRepositoryLayer}
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import org.testcontainers.utility.DockerImageName
-import zio.{ZIO, ZLayer}
+import zio.{ZEnvironment, ZIO, ZLayer}
 
 import javax.sql.DataSource
 
@@ -42,11 +40,15 @@ object TestMarketRepositoryLayer {
       } yield new HikariDataSource(config)
     }
 
-  val postgresMarketRepositoryLive
-      : ZLayer[AppConfig, Throwable, MarketRepository] =
-    postgresLayer >+>
-      dataSourceLayer >+>
-      PostgresMarketRepositoryLayer.migrationLayer >+>
-      PostgresMarketRepositoryLayer.quillLayer >+>
-      PostgresMarketRepositoryLayer.postgresMarketRepositoryLayer
+  val postgresMarketRepositoryLive : ZLayer[Any, Throwable, MarketRepository] =
+    postgresLayer >>> dataSourceLayer >>> ZLayer.scoped {
+      for {
+        dataSource <- ZIO.service[DataSource]
+        _ <- Migration.applyMigrations(dataSource)
+        layer =
+          PostgresMarketRepositoryLayer.quillLayer >>>
+          PostgresMarketRepositoryLayer.postgresMarketRepositoryLayer
+        repository <- layer.build.map(_.get[MarketRepository])
+      } yield repository
+    }
 }

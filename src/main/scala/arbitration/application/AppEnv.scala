@@ -1,4 +1,4 @@
-package arbitration.application.env
+package arbitration.application
 
 import arbitration.application.configurations.AppConfig
 import arbitration.application.queries.marketData.MarketData

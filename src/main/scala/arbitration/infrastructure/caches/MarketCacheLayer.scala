@@ -1,17 +1,18 @@
 package arbitration.infrastructure.caches
 
-import arbitration.application.env.AppEnv
+import arbitration.application.configurations.AppConfig
+import arbitration.infrastructure.repositories.MarketRepository
 import zio.cache.{Cache, Lookup}
 import zio.{ZIO, ZLayer}
 
 import scala.jdk.DurationConverters.*
 
 object MarketCacheLayer {
-  private val priceCacheLayer: ZLayer[AppEnv, Nothing, PriceCache] =
+  private val priceCacheLayer: ZLayer[MarketRepository with AppConfig, Nothing, PriceCache] =
     ZLayer.fromZIO {
       for {
-        repository <- ZIO.serviceWith[AppEnv](_.marketRepository)
-        expiration <- ZIO.serviceWith[AppEnv](_.config.cache.priceExpiration)
+        repository <- ZIO.service[MarketRepository]
+        expiration <- ZIO.serviceWith[AppConfig](_.cache.priceExpiration)
 
         cache <- Cache.make(
           capacity = 1000,
@@ -22,11 +23,11 @@ object MarketCacheLayer {
       } yield PriceCacheLive(memoryCache)
     }
 
-  private val spreadCacheLayer: ZLayer[AppEnv, Nothing, SpreadCache] =
+  private val spreadCacheLayer: ZLayer[MarketRepository with AppConfig, Nothing, SpreadCache] =
     ZLayer.fromZIO {
       for {
-        repository <- ZIO.serviceWith[AppEnv](_.marketRepository)
-        expiration <- ZIO.serviceWith[AppEnv](_.config.cache.spreadExpiration)
+        repository <- ZIO.service[MarketRepository]
+        expiration <- ZIO.serviceWith[AppConfig](_.cache.spreadExpiration)
 
         cache <- Cache.make(
           capacity = 1000,
@@ -38,7 +39,7 @@ object MarketCacheLayer {
       } yield SpreadCacheLive(memoryCache)
     }
 
-  val marketCacheLive: ZLayer[AppEnv, Throwable, MarketCache] =
+  val marketCacheLive: ZLayer[MarketRepository with AppConfig, Throwable, MarketCache] =
     (priceCacheLayer ++ spreadCacheLayer) >>> ZLayer.fromFunction {
       (price: PriceCache, spread: SpreadCache) =>
         MarketCacheLive(price, spread)

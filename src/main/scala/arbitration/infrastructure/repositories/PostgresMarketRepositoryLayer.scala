@@ -42,8 +42,14 @@ object PostgresMarketRepositoryLayer {
 
   val postgresMarketRepositoryLive
       : ZLayer[AppConfig, Throwable, MarketRepository] =
-    dataSourceLayer >+>
-      migrationLayer >+>
-      quillLayer >+>
-      postgresMarketRepositoryLayer
+    dataSourceLayer >>> ZLayer.scoped {
+      for {
+        dataSource <- ZIO.service[DataSource]
+        _ <- Migration.applyMigrations(dataSource)
+        layer =
+          PostgresMarketRepositoryLayer.quillLayer >>>
+            PostgresMarketRepositoryLayer.postgresMarketRepositoryLayer
+        repository <- layer.build.map(_.get[MarketRepository])
+      } yield repository
+  }
 }

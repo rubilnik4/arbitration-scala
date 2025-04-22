@@ -1,6 +1,5 @@
 package arbitration.application.commands.commands
 
-import arbitration.application.env.AppEnv
 import arbitration.domain.MarketError
 import arbitration.domain.models.{AssetId, AssetSpreadId, Spread, SpreadState}
 import zio.ZIO
