@@ -11,4 +11,4 @@ final case class AppEnvLive(
   marketCache: MarketCache,
   marketRepository: MarketRepository,
   marketData: MarketData,
-  marketApi: MarketApi)
+  marketApi: MarketApi) extends AppEnv
