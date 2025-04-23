@@ -16,27 +16,33 @@ import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
 object SpreadSpec extends ZIOSpecDefault {
   def spec: Spec[TestEnvironment with Scope, Any] = suite("Spread integration tests")(
     test("Should save spread successfully") {
+      val steps = 3
       for {
         project <- ZIO.serviceWith[AppEnv](_.appConfig.project)
         spreadAssetId = AssetSpreadId(AssetId(project.assets.assetA), AssetId(project.assets.assetB))
         spreadCommand = SpreadCommand(SpreadState.Init(), spreadAssetId)
         spreadHandler = SpreadCommandHandlerLive()
 
-        spreadResult <- SpreadCommandHandlerLive().execute(spreadCommand)
+        spreadState <- ZIO.foldLeft(0 until steps)(SpreadState.Init()) {
+          case (state, s) =>
+            for {
+              result <- spreadHandler.execute(SpreadCommand(state, spreadAssetId))
+            } yield result.spreadState
+        }
+
       } yield assertTrue(
-        spreadResult.spread.value > 0,
-        Spread.toAssetSpread(spreadResult.spread) == AssetSpreadId.normalize(spreadAssetId),
-        spreadResult.spreadState.lastSpread.contains(spreadResult.spread.value)
+        spreadState.lastSpread.exists(_ > 0),
+        spreadState.spreadHistory.size == steps
       )
     },
 
     test("Should retrieve last price") {
       for {
         project <- ZIO.serviceWith[AppEnv](_.appConfig.project)
-        assetId = AssetId(project.assets.assetA) 
+        assetId = AssetId(project.assets.assetA)
         priceQuery = PriceQuery(assetId)
         priceHandler = PriceQueryHandlerLive()
-        
+
         price <- priceHandler.handle(priceQuery)
       } yield assertTrue(
         price.assetId == assetId,
