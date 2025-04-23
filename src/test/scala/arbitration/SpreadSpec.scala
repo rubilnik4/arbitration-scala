@@ -3,9 +3,12 @@ package arbitration
 import arbitration.application.commands.commands.SpreadCommand
 import arbitration.application.commands.handlers.SpreadCommandHandlerLive
 import arbitration.application.environments.AppEnv
+import arbitration.application.queries.handlers.{PriceQueryHandlerLive, SpreadQueryHandlerLive}
+import arbitration.application.queries.queries.{PriceQuery, SpreadQuery}
 import arbitration.domain.MarketError
 import arbitration.domain.models.*
 import arbitration.layers.TestAppEnvLayer
+import zio.test.TestAspect.sequential
 import zio.{Scope, ZIO}
 import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
 
@@ -14,8 +17,7 @@ object SpreadSpec extends ZIOSpecDefault {
   def spec: Spec[TestEnvironment with Scope, Any] = suite("Spread integration tests")(
     test("Should save spread successfully") {
       for {
-        env <- ZIO.service[AppEnv]
-        project = env.appConfig.project
+        project <- ZIO.serviceWith[AppEnv](_.appConfig.project)
         spreadAssetId = AssetSpreadId(AssetId(project.assets.assetA), AssetId(project.assets.assetB))
         spreadCommand = SpreadCommand(SpreadState.Init(), spreadAssetId)
         spreadHandler = SpreadCommandHandlerLive()
@@ -28,31 +30,31 @@ object SpreadSpec extends ZIOSpecDefault {
       )
     },
 
-//    test("Should retrieve last price for asset") {
-//      for {
-//        env <- ZIO.service[AppEnv]
-//        asset = env.Infra.Config.Project.Assets.AssetA
-//        result <- getLastPrice(env.Infra, asset)
-//      } yield result match {
-//        case Right(price) =>
-//          assertTrue(
-//            price.Asset == asset,
-//            price.Value > 0
-//          )
-//        case Left(err) => fail(s"Failed to get last price: $err")
-//      }
-//    },
-//
-//    test("Should retrieve last spread") {
-//      for {
-//        env <- ZIO.service[AppEnv]
-//        spreadAssetId = AssetSpreadId(env.Infra.Config.Project.Assets.AssetA, env.Infra.Config.Project.Assets.AssetB)
-//        result <- getLastSpread(env.Infra, spreadAssetId)
-//      } yield result match {
-//        case Right(spread) =>
-//          assertTrue(spread.Value > 0)
-//        case Left(err) => fail(s"Failed to get last spread: $err")
-//      }
-//    }
-  ).provideLayerShared(TestAppEnvLayer.testAppEnvLive) //@@ sequential
+    test("Should retrieve last price") {
+      for {
+        project <- ZIO.serviceWith[AppEnv](_.appConfig.project)
+        assetId = AssetId(project.assets.assetA) 
+        priceQuery = PriceQuery(assetId)
+        priceHandler = PriceQueryHandlerLive()
+        
+        price <- priceHandler.handle(priceQuery)
+      } yield assertTrue(
+        price.assetId == assetId,
+        price.value > 0
+      )
+    },
+
+    test("Should retrieve last spread") {
+      for {
+        project <- ZIO.serviceWith[AppEnv](_.appConfig.project)
+        spreadAssetId = AssetSpreadId(AssetId(project.assets.assetA), AssetId(project.assets.assetB))
+        spreadQuery = SpreadQuery(spreadAssetId)
+        spreadHandler = SpreadQueryHandlerLive()
+
+        spread <- spreadHandler.handle(spreadQuery)
+      } yield assertTrue(
+        spread.value > 0
+      )
+    }
+  ).provideLayerShared(TestAppEnvLayer.testAppEnvLive) @@ sequential
 }

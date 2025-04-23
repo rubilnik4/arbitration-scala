@@ -41,12 +41,10 @@ object PostgresMarketRepositoryLayer {
       )
     }
 
-  val postgresMarketRepositoryLayer
-      : ZLayer[Quill.Postgres[SnakeCase], Nothing, MarketRepository] =
+  val postgresMarketRepositoryLayer : ZLayer[Quill.Postgres[SnakeCase], Nothing, MarketRepository] =
     ZLayer.fromFunction(quill => new PostgresMarketRepositoryLive(quill))
 
-  val postgresMarketRepositoryLive
-      : ZLayer[AppConfig, Throwable, MarketRepository] =
+  val postgresMarketRepositoryLive : ZLayer[AppConfig, Throwable, MarketRepository] =
     dataSourceLayer >>> ZLayer.scoped {
       for {
         dataSource <- ZIO.service[DataSource]
