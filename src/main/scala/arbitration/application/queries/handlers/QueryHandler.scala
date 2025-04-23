@@ -1,6 +1,6 @@
 package arbitration.application.queries.handlers
 
-import arbitration.application.AppEnv
+import arbitration.application.environments.AppEnv
 import arbitration.domain.MarketError
 import zio.ZIO
 

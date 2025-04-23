@@ -1,6 +1,6 @@
 package arbitration.environment
 
-import arbitration.application.{AppEnv, AppEnvLayer}
+import arbitration.application.environments.{AppEnv, AppEnvLayer}
 import arbitration.application.queries.marketData.MarketDataLayer
 import arbitration.infrastructure.caches.MarketCacheLayer
 import arbitration.infrastructure.markets.BinanceMarketApiLayer
