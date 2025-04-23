@@ -11,16 +11,12 @@ import zio.{Cause, Task, ZIO}
 import java.time.Instant
 import scala.concurrent.duration.DurationInt
 
-final class BinanceMarketApi(backend: SttpBackend[Task, Any])
-    extends MarketApi {
-  private val baseUrl = "https://fapi.binance.com/fapi/v1"
-  private val timeout = 30.seconds
+final class BinanceMarketApi(backend: SttpBackend[Task, Any]) extends MarketApi {
+  private final val baseUrl = "https://fapi.binance.com/fapi/v1"
+  private final val timeout = 30.seconds
 
   override def getPrice(assetId: AssetId): ZIO[Any, MarketError, Price] = {
-    val request = basicRequest
-      .get(uri"$baseUrl/ticker/price?symbol=${assetId.id}")
-      .readTimeout(timeout)
-      .response(asJsonEither[BinanceErrorResponse, BinancePriceResponse])
+    val request = getResponse(assetId)
 
     for {
       _ <- ZIO.logDebug(s"Binance API request for asset: $assetId")
@@ -29,43 +25,30 @@ final class BinanceMarketApi(backend: SttpBackend[Task, Any])
         .send(request)
         .mapError(e => ServiceUnavailable(s"Request failed", e))
 
-      price <- response.body match {
-        case Right(binancePrice) =>
-          for {
-            value <- ZIO
-              .attempt(binancePrice.price.toDouble)
-              .mapError(e =>
-                ApiError("Binance API invalid price format", 500, e.getMessage)
-              )
+      price <- ZIO.fromEither(response.body).foldZIO(
+        {
+          case HttpError(apiError: BinanceErrorResponse, _) =>
+            ZIO.logError(s"Binance API error for $assetId: ${apiError.code} - ${apiError.msg}") *>
+              ZIO.fail(ApiError("Binance API error", apiError.code, apiError.msg))
 
-            time = Instant.ofEpochMilli(binancePrice.time)
-          } yield Price(assetId, value, time)
-
-        case Left(HttpError(apiError: BinanceErrorResponse, _)) =>
-          for {
-            _ <- ZIO.logError(
-              s"Binance API error for $assetId: ${apiError.code} - ${apiError.msg}"
+          case decodeErr =>
+            ZIO.logErrorCause(s"Binance API unexpected error format for $assetId", Cause.fail(decodeErr)) *>
+              ZIO.fail(ApiError("Binance API unexpected error format", 500, decodeErr.getMessage))
+        },
+        binancePrice =>
+          ZIO
+            .attempt(binancePrice.price.toDouble)
+            .mapBoth(
+              e => ApiError("Binance API invalid price format", 500, e.getMessage), 
+              value => Price(assetId, value, Instant.ofEpochMilli(binancePrice.time))
             )
-            err <- ZIO.fail(
-              ApiError(s"Binance API error", apiError.code, apiError.msg)
-            )
-          } yield err
-
-        case Left(decodeErr) =>
-          for {
-            _ <- ZIO.logErrorCause(
-              s"[Binance] Unexpected error format for $assetId",
-              Cause.fail(decodeErr)
-            )
-            err <- ZIO.fail(
-              ApiError(
-                "Binance API unexpected error format",
-                500,
-                decodeErr.getMessage
-              )
-            )
-          } yield err
-      }
+      )
     } yield price
   }
+  
+  private def getResponse(assetId: AssetId) =
+    basicRequest
+      .get(uri"$baseUrl/ticker/price?symbol=${assetId.id}")
+      .readTimeout(timeout)
+      .response(asJsonEither[BinanceErrorResponse, BinancePriceResponse])
 }

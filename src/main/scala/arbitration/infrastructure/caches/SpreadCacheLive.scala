@@ -1,7 +1,7 @@
 package arbitration.infrastructure.caches
 
 import arbitration.domain.MarketError
-import arbitration.domain.models.{AssetId, AssetSpreadId, Price, Spread}
+import arbitration.domain.models.{AssetSpreadId, Spread}
 import zio.ZIO
 
 final case class SpreadCacheLive(cache: MemoryCache[AssetSpreadId, Spread])
