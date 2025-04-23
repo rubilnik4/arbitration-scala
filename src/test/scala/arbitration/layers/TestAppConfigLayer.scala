@@ -17,7 +17,7 @@ object TestAppConfigLayer {
         maxHistorySize = 5,
         assetLoadingDelay = 15.seconds
       ),
-      postgres = PostgresConfig(""),
+      postgres = None,
       cache = CacheConfig(
         priceExpiration = 1.minute,
         spreadExpiration = 1.minute

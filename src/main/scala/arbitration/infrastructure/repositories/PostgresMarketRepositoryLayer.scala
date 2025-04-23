@@ -14,9 +14,14 @@ object PostgresMarketRepositoryLayer {
     ZLayer.fromZIO {
       for {
         config <- ZIO.service[AppConfig]
+        
+        postgresConfig <- ZIO.fromOption(config.postgres)
+          .tapError(_ => ZIO.logError("Missing postgres config"))
+          .orElseFail(new RuntimeException("Postgres config is missing"))
+        
         hikariConfig = {
           val cfg = new HikariConfig()
-          cfg.setJdbcUrl(config.postgres.connectionString)
+          cfg.setJdbcUrl(postgresConfig.connectionString)
           cfg
         }
       } yield new HikariDataSource(hikariConfig)
