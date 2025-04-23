@@ -5,7 +5,7 @@ import arbitration.application.commands.handlers.SpreadCommandHandlerLive
 import arbitration.application.environments.AppEnv
 import arbitration.domain.MarketError
 import arbitration.domain.models.*
-import arbitration.environment.TestAppEnvLayer
+import arbitration.layers.TestAppEnvLayer
 import zio.{Scope, ZIO}
 import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
 

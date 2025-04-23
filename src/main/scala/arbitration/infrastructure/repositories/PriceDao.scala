@@ -13,7 +13,7 @@ final class PriceDao(quill: Quill.Postgres[SnakeCase]) {
   import quill.*
 
   private inline def priceTable = quote {
-    querySchema[PriceEntity]("prices")
+    querySchema[PriceEntity](MarketTableNames.Prices)
   }
 
   def insertPrice(price: PriceEntity): ZIO[Any, SQLException, UUID] =

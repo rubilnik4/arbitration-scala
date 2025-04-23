@@ -25,7 +25,10 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase]) exten
 
       spreadId <- saveSpread(spreadEntity)
     } yield spreadId)
-      .tapError(e => ZIO.logErrorCause(s"Failed to save spread $spread to database", Cause.fail(e)))
+      .tapBoth(
+        _ => ZIO.logDebug(s"Successfully save spread $spread to database"),
+        e => ZIO.logErrorCause(s"Failed to save spread $spread to database", Cause.fail(e))
+      )
 
   private def saveSpread(spreadEntity: SpreadEntity): ZIO[Any, MarketError, SpreadId] =
     spreadDao
@@ -50,7 +53,10 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase]) exten
           case None => ZIO.fail(NotFound(s"Price for asset $assetId not found"))
         }
       )
-      .tapError(e => ZIO.logErrorCause(s"Failed to get price $assetId from database", Cause.fail(e)))
+      .tapBoth(
+        _ => ZIO.logDebug(s"Successfully get price $assetId from database"),
+        e => ZIO.logErrorCause(s"Failed to get price $assetId from database", Cause.fail(e))
+      )
 
   override def getLastSpread(assetSpreadId: AssetSpreadId): ZIO[Any, MarketError, Spread] =
     val assetSpreadKey = AssetSpreadId.toKey(assetSpreadId)
@@ -62,5 +68,8 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase]) exten
           case None => ZIO.fail(NotFound(s"Spread for assets $assetSpreadId not found"))
         }
       )
-      .tapError(e => ZIO.logErrorCause(s"Failed to get spread $assetSpreadId from database", Cause.fail(e)))
+      .tapBoth(
+        _ => ZIO.logDebug(s"Successfully get spread $assetSpreadId from database"),
+        e => ZIO.logErrorCause(s"Failed to get spread $assetSpreadId from database", Cause.fail(e))
+      )
 }

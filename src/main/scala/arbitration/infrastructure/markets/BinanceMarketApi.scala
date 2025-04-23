@@ -19,8 +19,6 @@ final class BinanceMarketApi(backend: SttpBackend[Task, Any]) extends MarketApi 
     val request = getResponse(assetId)
 
     for {
-      _ <- ZIO.logDebug(s"Binance API request for asset: $assetId")
-
       response <- backend
         .send(request)
         .mapError(e => ServiceUnavailable(s"Request failed", e))
@@ -38,14 +36,18 @@ final class BinanceMarketApi(backend: SttpBackend[Task, Any]) extends MarketApi 
         binancePrice =>
           ZIO
             .attempt(binancePrice.price.toDouble)
+            .tapBoth(
+              e => ZIO.logErrorCause(s"Binance API failed to parse price for $assetId", Cause.fail(e)),
+              value => ZIO.logDebug(s"Binance API successfully get price for $assetId")
+            )
             .mapBoth(
-              e => ApiError("Binance API invalid price format", 500, e.getMessage), 
+              e => ApiError("Binance API invalid price format", 500, e.getMessage),
               value => Price(assetId, value, Instant.ofEpochMilli(binancePrice.time))
             )
       )
     } yield price
   }
-  
+
   private def getResponse(assetId: AssetId) =
     basicRequest
       .get(uri"$baseUrl/ticker/price?symbol=${assetId.id}")

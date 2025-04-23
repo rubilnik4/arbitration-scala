@@ -1,4 +1,4 @@
-package arbitration.environment
+package arbitration.layers
 
 import arbitration.application.configurations.AppConfig
 import arbitration.infrastructure.db.Migration

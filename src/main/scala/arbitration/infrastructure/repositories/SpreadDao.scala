@@ -13,11 +13,11 @@ final class SpreadDao(quill: Quill.Postgres[SnakeCase]) {
   import quill.*
 
   private inline def priceTable = quote {
-    querySchema[PriceEntity]("prices")
+    querySchema[PriceEntity](MarketTableNames.Prices)
   }
 
   private inline def spreadTable = quote {
-    querySchema[SpreadEntity]("spreads")
+    querySchema[SpreadEntity](MarketTableNames.Spreads)
   }
 
   def insertSpread(spread: SpreadEntity): ZIO[Any, SQLException, UUID] =
