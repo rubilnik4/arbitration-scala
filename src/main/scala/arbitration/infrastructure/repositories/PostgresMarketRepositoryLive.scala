@@ -4,145 +4,63 @@ import arbitration.domain.MarketError
 import arbitration.domain.MarketError.{DatabaseError, NotFound}
 import arbitration.domain.entities.*
 import arbitration.domain.models.*
-import arbitration.domain.models.AssetSpreadId.toKey
 import io.getquill.*
 import io.getquill.jdbczio.Quill
 import zio.*
 
-import java.sql.SQLException
-import java.time.Instant
 import java.util.UUID
 
 final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase]) extends MarketRepository {
-  import quill.*
 
-  private def savePrice(price: Price): ZIO[Any, SQLException, UUID] = {
-    val priceEntity = PriceMapper.toEntity(price)
+  private val priceDao = PriceDao(quill)
 
-    val insert = quote {
-      priceTable
-        .insertValue(lift(priceEntity))
-        .returning(_.id)
-    }
+  private val spreadDao = SpreadDao(quill)
 
-    val select = quote {
-      priceTable
-        .filter(p => p.assetId == lift(priceEntity.assetId) && p.time == lift(priceEntity.time))
-        .map(_.id)
-    }
-
-    run(insert)
-      .catchSome { case _: SQLException =>
-        run(select).flatMap {
-          case head :: _ => ZIO.succeed(head)
-          case Nil => ZIO.fail(new SQLException("Price not found after insert fail"))
-        }
-      }
-
-  }
-
-  override def saveSpread(spread: Spread): ZIO[Any, MarketError, SpreadId] = {
-    (for {      
+  override def saveSpread(spread: Spread): ZIO[Any, MarketError, SpreadId] =
+    (for {
       priceAId <- savePrice(spread.priceA)
       priceBId <- savePrice(spread.priceB)
 
       spreadEntity = SpreadMapper.toEntity(spread, priceAId, priceBId)
 
-      spreadId <- {
-        val insert = quote {
-          spreadTable
-            .insertValue(lift(spreadEntity))
-            .returning(_.id)
-        }
-
-        val select = quote {
-          spreadTable
-            .filter(s => s.assetSpreadId == lift(spreadEntity.assetSpreadId) && s.time == lift(spreadEntity.time))
-            .map(_.id)
-        }
-
-        run(insert).catchSome { case _: SQLException =>
-          run(select).flatMap {
-            case head :: _ => ZIO.succeed(head)
-            case Nil =>
-              ZIO.fail(new SQLException("Spread not found after insert fail"))
-          }
-        }
-      }
-    } yield SpreadId(spreadId))
+      spreadId <- saveSpread(spreadEntity)
+    } yield spreadId)
       .tapError(e => ZIO.logErrorCause(s"Failed to save spread $spread to database", Cause.fail(e)))
-      .mapError {
-        DatabaseError(s"Failed to save spread $spread to database", _: SQLException)
-      }
-  }
 
-  override def getLastPrice(assetId: AssetId): ZIO[Any, MarketError, Price] = {
-    val select = quote {
-      priceTable
-        .filter(_.assetId == lift(assetId.id))
-        .sortBy(_.time)(Ord.desc)
-        .take(1)
-    }
-
-    run(select)
-      .flatMap {
-        case head :: _ => ZIO.succeed(PriceMapper.toDomain(head))
-        case Nil => ZIO.fail(NotFound(s"Price for asset '$assetId' not found"))
-      }
-      .tapError(e =>
-        ZIO.logErrorCause(s"Failed to get last price $assetId to database", Cause.fail(e))
+  private def saveSpread(spreadEntity: SpreadEntity): ZIO[Any, MarketError, SpreadId] =
+    spreadDao
+      .insertSpread(spreadEntity)
+      .mapBoth(
+        e => DatabaseError("Failed to save spread", e),
+        spreadId => SpreadId(spreadId)
       )
-      .mapError {
-        case sql: SQLException => DatabaseError("Failed to load price", sql)
-        case notFound: arbitration.domain.MarketError => notFound
-      }
-  }
 
-  override def getLastSpread(assetSpreadId: AssetSpreadId): ZIO[Any, MarketError, Spread] = {
-    val select = quote {
-      spreadTable
-        .join(priceTable)
-        .on((s, pa) => s.priceAId == pa.id)
-        .join(priceTable)
-        .on { case ((s, pa), pb) => s.priceBId == pb.id }
-        .filter { case ((s, _), _) =>
-          s.assetSpreadId == lift(toKey(assetSpreadId))
-        }
-        .sortBy { case ((s, _), _) => s.time }(Ord.desc)
-        .take(1)
-        .map { case ((s, pa), pb) =>
-          Spread(
-            value = s.value,
-            time = s.time,
-            priceA = Price(AssetId(pa.assetId), pa.value, pa.time),
-            priceB = Price(AssetId(pb.assetId), pb.value, pb.time)
-          )
-        }
-    }
+  private def savePrice(price: Price): ZIO[Any, MarketError, UUID] =
+    val priceEntity = PriceMapper.toEntity(price)
+    priceDao
+      .insertPrice(priceEntity)
+      .mapError(e => DatabaseError("Failed to save price", e))
 
-    run(select)
-      .flatMap {
-        case head :: _ => ZIO.succeed(head)
-        case Nil =>
-          ZIO.fail(NotFound(s"Spread for assets '$assetSpreadId' not found"))
-      }
-      .tapError(e =>
-        ZIO.logErrorCause(
-          s"Failed to get last spread $assetSpreadId to database",
-          Cause.fail(e)
-        )
+  override def getLastPrice(assetId: AssetId): ZIO[Any, MarketError, Price] =
+    priceDao.getLastPrice(assetId.id)
+      .foldZIO(
+        e => ZIO.fail(DatabaseError("Failed to get last price", e)),
+        {
+          case Some(price) => ZIO.succeed(PriceMapper.toDomain(price))
+          case None => ZIO.fail(NotFound(s"Price for asset $assetId not found"))
+        }
       )
-      .mapError {
-        case sql: SQLException => DatabaseError("Failed to load spread", sql)
-        case notFound: arbitration.domain.MarketError => notFound
-      }
-  }
+      .tapError(e => ZIO.logErrorCause(s"Failed to get price $assetId from database", Cause.fail(e)))
 
-  private inline def priceTable = quote {
-    querySchema[PriceEntity]("prices")
-  }
-
-  private inline def spreadTable = quote {
-    querySchema[SpreadEntity]("spreads")
-  }
+  override def getLastSpread(assetSpreadId: AssetSpreadId): ZIO[Any, MarketError, Spread] =
+    val assetSpreadKey = AssetSpreadId.toKey(assetSpreadId)
+    spreadDao.getLastSpread(assetSpreadKey)
+      .foldZIO(
+        error => ZIO.fail(DatabaseError("Failed to get last spread", error)),
+        {
+          case Some(spread) => ZIO.succeed(SpreadMapper.toDomain(spread))
+          case None => ZIO.fail(NotFound(s"Spread for assets $assetSpreadId not found"))
+        }
+      )
+      .tapError(e => ZIO.logErrorCause(s"Failed to get spread $assetSpreadId from database", Cause.fail(e)))
 }

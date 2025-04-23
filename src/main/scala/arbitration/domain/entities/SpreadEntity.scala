@@ -14,7 +14,21 @@ final case class SpreadEntity(
     time: Instant
 )
 
+final case class SpreadPricesEntity(
+  spread: SpreadEntity,
+  priceA: PriceEntity,
+  priceB: PriceEntity
+)
+
 object SpreadMapper {
+  def toDomain(spread: SpreadPricesEntity): Spread =
+    Spread(
+      value = spread.spread.value,
+      time = spread.spread.time,
+      priceA = PriceMapper.toDomain(spread.priceA),
+      priceB = PriceMapper.toDomain(spread.priceB),
+    )
+    
   def toEntity(spread: Spread, priceAId: UUID, priceBId: UUID): SpreadEntity =
     SpreadEntity(
       id = UUID.randomUUID(),
