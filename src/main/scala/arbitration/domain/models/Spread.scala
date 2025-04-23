@@ -11,7 +11,7 @@ final case class Spread(
 
 object Spread {
   def toAssetSpread(spread: Spread): AssetSpreadId =
-    AssetSpreadId(spread.priceA.asset, spread.priceB.asset)
+    AssetSpreadId(spread.priceA.assetId, spread.priceB.assetId)
 
   def toKey(spread: Spread): String =
     val assetSpread = toAssetSpread(spread)

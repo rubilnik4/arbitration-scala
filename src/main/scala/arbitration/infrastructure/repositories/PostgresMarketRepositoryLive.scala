@@ -2,12 +2,7 @@ package arbitration.infrastructure.repositories
 
 import arbitration.domain.MarketError
 import arbitration.domain.MarketError.{DatabaseError, NotFound}
-import arbitration.domain.entities.{
-  PriceEntity,
-  PriceMapper,
-  SpreadEntity,
-  SpreadMapper
-}
+import arbitration.domain.entities.*
 import arbitration.domain.models.*
 import arbitration.domain.models.AssetSpreadId.toKey
 import io.getquill.*
@@ -18,11 +13,10 @@ import java.sql.SQLException
 import java.time.Instant
 import java.util.UUID
 
-final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
-    extends MarketRepository {
-  private def savePrice(price: Price): ZIO[Any, SQLException, UUID] = {
-    import quill.*
+final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase]) extends MarketRepository {
+  import quill.*
 
+  private def savePrice(price: Price): ZIO[Any, SQLException, UUID] = {
     val priceEntity = PriceMapper.toEntity(price)
 
     val insert = quote {
@@ -33,7 +27,7 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
 
     val select = quote {
       priceTable
-        .filter(p => p.asset == lift(priceEntity.asset) && p.time == lift(priceEntity.time))
+        .filter(p => p.assetId == lift(priceEntity.assetId) && p.time == lift(priceEntity.time))
         .map(_.id)
     }
 
@@ -48,8 +42,6 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
   }
 
   override def saveSpread(spread: Spread): ZIO[Any, MarketError, SpreadId] = {
-    import quill.*
-
     (for {      
       priceAId <- savePrice(spread.priceA)
       priceBId <- savePrice(spread.priceB)
@@ -85,11 +77,9 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
   }
 
   override def getLastPrice(assetId: AssetId): ZIO[Any, MarketError, Price] = {
-    import quill.*
-    
     val select = quote {
       priceTable
-        .filter(_.asset == lift(assetId.id))
+        .filter(_.assetId == lift(assetId.id))
         .sortBy(_.time)(Ord.desc)
         .take(1)
     }
@@ -109,8 +99,6 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
   }
 
   override def getLastSpread(assetSpreadId: AssetSpreadId): ZIO[Any, MarketError, Spread] = {
-    import quill.*
-
     val select = quote {
       spreadTable
         .join(priceTable)
@@ -126,8 +114,8 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase])
           Spread(
             value = s.value,
             time = s.time,
-            priceA = Price(AssetId(pa.asset), pa.value, pa.time),
-            priceB = Price(AssetId(pb.asset), pb.value, pb.time)
+            priceA = Price(AssetId(pa.assetId), pa.value, pa.time),
+            priceB = Price(AssetId(pb.assetId), pb.value, pb.time)
           )
         }
     }

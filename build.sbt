@@ -26,5 +26,6 @@ lazy val root = (project in file("."))
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % "3.11.0",
       "ch.qos.logback" % "logback-classic" % "1.5.18"
     ),
-    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework")
+    testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
+    scalacOptions += "-Dquill.macro.log=false"
   )

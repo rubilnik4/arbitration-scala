@@ -32,13 +32,10 @@ final class SpreadCommandHandlerLive extends SpreadCommandHandler {
       _ <- ZIO.logInfo(s"Fetching price for $assetId")
       result <- marketData
         .getPrice(assetId)
-        .catchAll { _ =>
-          marketData
-            .getLastPrice(assetId)
-            .tapBoth(
-              _ => ZIO.logError(s"No price at all for $assetId"),
-              _ => ZIO.logInfo(s"Using last price for $assetId"))
-        }
+        .catchAll(_ => marketData.getLastPrice(assetId))
+        .tapBoth(
+          _ => ZIO.logError(s"No price at all for $assetId"),
+          _ => ZIO.logInfo(s"Using last price for $assetId"))
     } yield result
 
   private def getSpread(priceA: Price, priceB: Price): Spread = {
@@ -49,8 +46,8 @@ final class SpreadCommandHandlerLive extends SpreadCommandHandler {
   private def removeSpreadCache(spread: Spread): ZIO[AppEnv, MarketError, Unit] =
     for {
       cache <- ZIO.serviceWith[AppEnv](_.marketCache)
-      _ <- cache.priceCache.invalidate(spread.priceA.asset)
-      _ <- cache.priceCache.invalidate(spread.priceB.asset)
+      _ <- cache.priceCache.invalidate(spread.priceA.assetId)
+      _ <- cache.priceCache.invalidate(spread.priceB.assetId)
       _ <- cache.spreadCache.invalidate(Spread.toAssetSpread(spread))
     } yield ()
 

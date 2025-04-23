@@ -6,16 +6,16 @@ import java.time.Instant
 import java.util.UUID
 
 final case class PriceEntity(
-    id: UUID,
-    asset: String,
-    value: BigDecimal,
-    time: Instant
+  id: UUID,
+  assetId: String,
+  value: BigDecimal,
+  time: Instant
 )
 
 object PriceMapper {
   def toDomain(price: PriceEntity): Price =
     Price(
-      asset = AssetId(price.asset),
+      assetId = AssetId(price.assetId),
       value = price.value,
       time = price.time
     )
@@ -23,7 +23,7 @@ object PriceMapper {
   def toEntity(price: Price): PriceEntity =
     PriceEntity(
       id = UUID.randomUUID(),
-      asset = price.asset.id,
+      assetId = price.assetId.id,
       value = price.value,
       time = price.time
     )

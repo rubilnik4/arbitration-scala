@@ -19,7 +19,7 @@ object BinanceMarketApiSpec extends ZIOSpecDefault {
             backend <- AsyncHttpClientZioBackend.scoped()
             api = new BinanceMarketApi(backend)
             price <- api.getPrice(assetId)
-          } yield assertTrue(price.asset == assetId)
+          } yield assertTrue(price.assetId == assetId)
         }
       },
       test("should fail for nonexistent symbol") {
