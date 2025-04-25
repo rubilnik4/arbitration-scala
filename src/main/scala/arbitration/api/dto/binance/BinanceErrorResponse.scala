@@ -1,4 +1,4 @@
-package arbitration.application.dto
+package arbitration.api.dto.binance
 
 import zio.json.JsonDecoder
 

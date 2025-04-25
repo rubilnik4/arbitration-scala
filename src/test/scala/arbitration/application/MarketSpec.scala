@@ -1,4 +1,4 @@
-package arbitration
+package arbitration.application
 
 import arbitration.application.commands.commands.SpreadCommand
 import arbitration.application.commands.handlers.SpreadCommandHandlerLive
@@ -9,11 +9,11 @@ import arbitration.domain.MarketError
 import arbitration.domain.models.*
 import arbitration.layers.TestAppEnvLayer
 import zio.test.TestAspect.sequential
-import zio.{Scope, ZIO}
 import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
+import zio.{Scope, ZIO}
 
 
-object SpreadSpec extends ZIOSpecDefault {
+object MarketSpec extends ZIOSpecDefault {
   def spec: Spec[TestEnvironment with Scope, Any] = suite("Spread integration tests")(
     test("Should save spread successfully") {
       val steps = 3

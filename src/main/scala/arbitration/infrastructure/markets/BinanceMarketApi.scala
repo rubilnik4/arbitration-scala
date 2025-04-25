@@ -1,6 +1,6 @@
 package arbitration.infrastructure.markets
 
-import arbitration.application.dto.{BinanceErrorResponse, BinancePriceResponse}
+import arbitration.api.dto.binance.{BinanceErrorResponse, BinancePriceResponse}
 import arbitration.domain.MarketError
 import arbitration.domain.MarketError.{ApiError, ServiceUnavailable}
 import arbitration.domain.models.{AssetId, Price}

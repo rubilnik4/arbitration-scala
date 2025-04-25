@@ -1,6 +1,7 @@
 package arbitration.application.environments
 
 import arbitration.application.configurations.AppConfig
+import arbitration.application.queries.handlers.MarketQueryHandler
 import arbitration.application.queries.marketData.MarketData
 import arbitration.infrastructure.caches.MarketCache
 import arbitration.infrastructure.markets.MarketApi
@@ -12,4 +13,5 @@ trait AppEnv {
   def marketRepository: MarketRepository
   def marketData: MarketData
   def marketApi: MarketApi
+  def marketQueryHandler: MarketQueryHandler
 }
