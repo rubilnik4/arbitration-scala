@@ -1,5 +1,6 @@
 package arbitration.application.environments
 
+import arbitration.application.commands.handlers.MarketCommandHandler
 import arbitration.application.configurations.AppConfig
 import arbitration.application.queries.handlers.MarketQueryHandler
 import arbitration.application.queries.marketData.MarketData
@@ -13,5 +14,6 @@ final case class AppEnvLive (
   marketRepository: MarketRepository,
   marketData: MarketData,
   marketApi: MarketApi,
-  marketQueryHandler: MarketQueryHandler
+  marketQueryHandler: MarketQueryHandler,
+  marketCommandHandler: MarketCommandHandler
 ) extends AppEnv

@@ -1,5 +1,6 @@
 package arbitration.layers
 
+import arbitration.application.commands.handlers.MarketCommandHandlerLayer
 import arbitration.application.environments.{AppEnv, AppEnvLayer}
 import arbitration.application.queries.handlers.MarketQueryHandlerLayer
 import arbitration.application.queries.marketData.MarketDataLayer
@@ -17,6 +18,7 @@ object TestAppEnvLayer {
       MarketDataLayer.marketDataLive,
       BinanceMarketApiLayer.binanceMarketApiLive,
       MarketQueryHandlerLayer.marketQueryHandlerLive,
+      MarketCommandHandlerLayer.marketCommandHandlerLive,
       AppEnvLayer.appEnvLive
     )
 }

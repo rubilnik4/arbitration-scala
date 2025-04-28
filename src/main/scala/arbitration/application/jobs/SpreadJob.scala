@@ -15,7 +15,7 @@ class SpreadJob {
       )
 
       ZIO.logSpan("arbitration.compute-spread")  {
-        SpreadCommandHandlerLive().execute(SpreadCommand(state, spreadAssetId)).foldZIO(
+        SpreadCommandHandlerLive().handle(SpreadCommand(state, spreadAssetId)).foldZIO(
           err =>
             ZIO.logAnnotate("result.status", "error") {
               ZIO.logErrorCause("Failed to compute spread", Cause.fail(err)).as(state)

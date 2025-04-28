@@ -5,5 +5,5 @@ import arbitration.domain.MarketError
 import zio.ZIO
 
 trait CommandHandler[-Cmd, +Res] {
-  def execute(command: Cmd): ZIO[AppEnv, MarketError, Res]
+  def handle(command: Cmd): ZIO[AppEnv, MarketError, Res]
 }

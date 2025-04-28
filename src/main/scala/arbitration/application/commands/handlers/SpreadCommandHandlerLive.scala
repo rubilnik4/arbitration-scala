@@ -9,7 +9,7 @@ import zio.ZIO
 import java.time.Instant
 
 final class SpreadCommandHandlerLive extends SpreadCommandHandler {
-  override def execute(cmd: SpreadCommand): ZIO[AppEnv, MarketError, SpreadResult] = {
+  override def handle(cmd: SpreadCommand): ZIO[AppEnv, MarketError, SpreadResult] = {
     val assetSpreadId = AssetSpreadId.normalize(cmd.assetSpreadId)
 
     for {

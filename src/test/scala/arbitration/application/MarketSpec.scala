@@ -26,7 +26,7 @@ object MarketSpec extends ZIOSpecDefault {
         spreadState <- ZIO.foldLeft(0 until steps)(SpreadState.Init()) {
           case (state, s) =>
             for {
-              result <- spreadHandler.execute(SpreadCommand(state, spreadAssetId))
+              result <- spreadHandler.handle(SpreadCommand(state, spreadAssetId))
             } yield result.spreadState
         }
 
