@@ -5,8 +5,6 @@ import arbitration.infrastructure.repositories.MarketRepository
 import zio.cache.{Cache, Lookup}
 import zio.{ZIO, ZLayer}
 
-import scala.jdk.DurationConverters.*
-
 object MarketCacheLayer {
   private val priceCacheLayer: ZLayer[MarketRepository with AppConfig, Nothing, PriceCache] =
     ZLayer.fromZIO {
@@ -16,7 +14,7 @@ object MarketCacheLayer {
 
         cache <- Cache.make(
           capacity = 1000,
-          timeToLive = expiration.toJava,
+          timeToLive = java.time.Duration.ofMillis(expiration.toMillis),
           lookup = Lookup(repository.getLastPrice)
         )
         memoryCache = new MemoryCacheLive(cache)
@@ -31,7 +29,7 @@ object MarketCacheLayer {
 
         cache <- Cache.make(
           capacity = 1000,
-          timeToLive = expiration.toJava,
+          timeToLive = java.time.Duration.ofMillis(expiration.toMillis),
           lookup = Lookup(repository.getLastSpread)
         )
 

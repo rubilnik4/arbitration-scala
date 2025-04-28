@@ -1,8 +1,13 @@
 package arbitration.application.configurations
 
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import zio.{Config, Duration}
+import zio.config.magnolia.deriveConfig
 
 final case class CacheConfig(
-  priceExpiration: FiniteDuration,
-  spreadExpiration: FiniteDuration
+  priceExpiration: Duration,
+  spreadExpiration: Duration
 )
+
+object CacheConfig {
+  implicit val config: Config[CacheConfig] = deriveConfig[CacheConfig]
+}

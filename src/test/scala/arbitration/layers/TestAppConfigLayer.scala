@@ -2,8 +2,7 @@ package arbitration.layers
 
 import arbitration.application.configurations.*
 import zio.ZLayer
-
-import scala.concurrent.duration.DurationInt
+import zio.durationInt
 
 object TestAppConfigLayer {
   private lazy val appConfig: AppConfig =

@@ -3,12 +3,11 @@ package arbitration.api.endpoints
 import arbitration.api.dto.markets.*
 import arbitration.application.commands.commands.SpreadCommand
 import arbitration.application.environments.AppEnv
-import arbitration.domain.MarketError
-import arbitration.domain.models.{AssetId, AssetSpreadId, Spread, SpreadState}
-import arbitration.application.queries.queries.{PriceQuery, SpreadQuery}
+import arbitration.application.queries.queries.SpreadQuery
+import arbitration.domain.models.{AssetId, AssetSpreadId, SpreadState}
 import zio.ZIO
-import zio.http.Method.*
 import zio.http.*
+import zio.http.Method.*
 import zio.http.codec.HttpCodec
 import zio.http.endpoint.Endpoint
 
@@ -27,7 +26,7 @@ object SpreadEndpoint {
         HttpCodec.error[MarketErrorResponse](Status.InternalServerError)
       )
 
-  val getSpreadRoute: Route[AppEnv, Nothing] = getSpreadEndpoint.implement { (assetIdA, assetIdB) =>
+  private val getSpreadRoute: Route[AppEnv, Nothing] = getSpreadEndpoint.implement { (assetIdA, assetIdB) =>
     val assetSpreadId = AssetSpreadId(AssetId(assetIdA), AssetId(assetIdB))
     val spreadQuery = SpreadQuery(assetSpreadId)
     for {
@@ -50,7 +49,7 @@ object SpreadEndpoint {
       )
   }
 
-  val computeSpreadRoute: Route[AppEnv, Nothing] = computeSpreadEndpoint.implement { request =>
+  private val computeSpreadRoute: Route[AppEnv, Nothing] = computeSpreadEndpoint.implement { request =>
     val assetSpreadId = AssetSpreadId(AssetId(request.assetIdA), AssetId(request.assetIdB))
     val spreadCommand = SpreadCommand(SpreadState.Init(), assetSpreadId)
     for {
@@ -61,4 +60,7 @@ object SpreadEndpoint {
           spreadResult => SpreadMapper.toResponse(spreadResult.spread))
     } yield result
   }
+
+  val allRoutes: List[Route[AppEnv, Nothing]] =
+    List(getSpreadRoute, computeSpreadRoute)
 }

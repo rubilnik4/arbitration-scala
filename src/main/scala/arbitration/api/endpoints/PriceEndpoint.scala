@@ -24,7 +24,7 @@ object PriceEndpoint {
         HttpCodec.error[MarketErrorResponse](Status.InternalServerError)
       )
       
-  val getPriceRoute: Route[AppEnv, Nothing] = getPriceEndpoint.implement { assetId =>
+  private val getPriceRoute: Route[AppEnv, Nothing] = getPriceEndpoint.implement { assetId =>
     val priceQuery = PriceQuery(AssetId(assetId))
     for {
       priceQueryHandler <- ZIO.serviceWith[AppEnv](_.marketQueryHandler.priceQueryHandler)
@@ -34,4 +34,7 @@ object PriceEndpoint {
           price => PriceMapper.toResponse(price))
     } yield result
   }
+
+  val allRoutes: List[Route[AppEnv, Nothing]] =
+    List(getPriceRoute)
 }

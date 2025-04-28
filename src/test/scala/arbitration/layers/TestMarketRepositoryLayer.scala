@@ -1,7 +1,7 @@
 package arbitration.layers
 
 import arbitration.application.configurations.AppConfig
-import arbitration.infrastructure.db.Migration
+import arbitration.infrastructure.database.Migration
 import arbitration.infrastructure.repositories.{MarketRepository, PostgresMarketRepositoryLayer}
 import com.dimafeng.testcontainers.PostgreSQLContainer
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
@@ -24,8 +24,7 @@ object TestMarketRepositoryLayer {
       )(container => ZIO.attempt(container.stop()).orDie)
     }
 
-  private val dataSourceLayer
-      : ZLayer[PostgreSQLContainer, Throwable, DataSource] =
+  private val dataSourceLayer: ZLayer[PostgreSQLContainer, Throwable, DataSource] =
     ZLayer.fromZIO {
       for {
         container <- ZIO.service[PostgreSQLContainer]
@@ -40,7 +39,7 @@ object TestMarketRepositoryLayer {
       } yield new HikariDataSource(config)
     }
 
-  val postgresMarketRepositoryLive : ZLayer[Any, Throwable, MarketRepository] =
+  val postgresMarketRepositoryLive: ZLayer[Any, Throwable, MarketRepository] =
     postgresLayer >>> dataSourceLayer >>> ZLayer.scoped {
       for {
         dataSource <- ZIO.service[DataSource]

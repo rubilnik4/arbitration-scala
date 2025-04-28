@@ -1,7 +1,7 @@
 package arbitration.infrastructure.repositories
 
 import arbitration.application.configurations.AppConfig
-import arbitration.infrastructure.db.Migration
+import arbitration.infrastructure.database.Migration
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import io.getquill.SnakeCase
 import io.getquill.jdbczio.Quill

@@ -1,4 +1,4 @@
-package arbitration.infrastructure.db
+package arbitration.infrastructure.database
 
 import org.flywaydb.core.Flyway
 import zio.*

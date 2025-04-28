@@ -34,7 +34,7 @@ class SpreadJob {
     ZIO.iterate(initialState)(_ => true) { state =>
       for {
         env <- ZIO.service[AppEnv]
-        _ <- ZIO.sleep(zio.Duration.fromScala(env.appConfig.project.assetLoadingDelay))
+        _ <- ZIO.sleep(env.appConfig.project.assetLoadingDelay)
         newState <- computeSpread(state)
       } yield newState
     }.unit
