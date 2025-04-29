@@ -26,7 +26,7 @@ object SpreadEndpoint {
         HttpCodec.error[MarketErrorResponse](Status.InternalServerError)
       )
 
-  private val getSpreadRoute: Route[AppEnv, Nothing] = getSpreadEndpoint.implement { (assetIdA, assetIdB) =>
+  private val getSpreadRoute = getSpreadEndpoint.implement { (assetIdA, assetIdB) =>
     val assetSpreadId = AssetSpreadId(AssetId(assetIdA), AssetId(assetIdB))
     val spreadQuery = SpreadQuery(assetSpreadId)
     for {
@@ -49,7 +49,7 @@ object SpreadEndpoint {
       )
   }
 
-  private val computeSpreadRoute: Route[AppEnv, Nothing] = computeSpreadEndpoint.implement { request =>
+  private val computeSpreadRoute = computeSpreadEndpoint.implement { request =>
     val assetSpreadId = AssetSpreadId(AssetId(request.assetIdA), AssetId(request.assetIdB))
     val spreadCommand = SpreadCommand(SpreadState.Init(), assetSpreadId)
     for {
@@ -61,6 +61,6 @@ object SpreadEndpoint {
     } yield result
   }
 
-  val allRoutes: List[Route[AppEnv, Nothing]] =
-    List(getSpreadRoute, computeSpreadRoute)
+  val allRoutes: Routes[AppEnv, Response] =
+    Routes(getSpreadRoute, computeSpreadRoute)
 }

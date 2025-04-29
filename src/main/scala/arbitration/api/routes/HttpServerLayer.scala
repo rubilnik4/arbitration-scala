@@ -6,12 +6,11 @@ import zio.http.*
 import zio.http.Server
 
 object HttpServerLayer {
-  val httpServerLive: ZLayer[ApiRoutes & AppEnv & Server, Throwable, Unit] =
+  val httpServerLive: ZLayer[Routes[AppEnv, Response] & AppEnv & Server, Throwable, Unit] =
     ZLayer.scoped {
       for {
-        apiRoutes <- ZIO.service[ApiRoutes]     
-        _ <- Server.serve(apiRoutes.routes)
-          .provide(Server.default)
+        routes <- ZIO.service[Routes[AppEnv, Response]]
+        _ <- Server.serve(routes)
       } yield ()
     }
 }

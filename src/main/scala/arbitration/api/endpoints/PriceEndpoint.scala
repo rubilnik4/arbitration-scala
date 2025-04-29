@@ -35,6 +35,6 @@ object PriceEndpoint {
     } yield result
   }
 
-  val allRoutes: List[Route[AppEnv, Nothing]] =
-    List(getPriceRoute)
+  val allRoutes: Routes[AppEnv, Response] =
+    Routes(getPriceRoute)
 }

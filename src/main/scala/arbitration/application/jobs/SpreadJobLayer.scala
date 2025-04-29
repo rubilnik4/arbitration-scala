@@ -5,7 +5,7 @@ import arbitration.domain.models.SpreadState
 import zio.{ZIO, ZLayer}
 
 object SpreadJobLayer {
-  val spreadJobLayer: ZLayer[AppEnv, Nothing, Unit] =
+  val spreadJobLive: ZLayer[AppEnv, Nothing, Unit] =
     ZLayer.scoped {
       for {
         _ <- ZIO.logInfo("Starting spread job")

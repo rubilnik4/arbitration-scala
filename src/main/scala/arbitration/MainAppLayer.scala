@@ -1,6 +1,6 @@
 package arbitration
 
-import arbitration.api.routes.{ApiRoutesLayer, HttpServerLayer}
+import arbitration.api.routes.{RoutesLayer, HttpServerLayer, ServerLayer}
 import arbitration.application.commands.handlers.MarketCommandHandlerLayer
 import arbitration.application.environments.*
 import arbitration.application.jobs.SpreadJobLayer
@@ -10,6 +10,8 @@ import arbitration.infrastructure.caches.MarketCacheLayer
 import arbitration.infrastructure.markets.BinanceMarketApiLayer
 import arbitration.infrastructure.repositories.PostgresMarketRepositoryLayer
 import zio.ZLayer
+import zio._
+import zio.http._
 
 object MainAppLayer {
   private val appLive: ZLayer[Any, Throwable, AppEnv] =
@@ -21,15 +23,12 @@ object MainAppLayer {
       BinanceMarketApiLayer.binanceMarketApiLive,
       MarketQueryHandlerLayer.marketQueryHandlerLive,
       MarketCommandHandlerLayer.marketCommandHandlerLive,
-    
       AppEnvLayer.appEnvLive
     )
 
-  val runtimeLive: ZLayer[Any, Throwable, Unit] =
-    ZLayer.make[Unit](
-      appLive,
-      SpreadJobLayer.spreadJobLayer,
-      ApiRoutesLayer.apiRoutesLive,
-      HttpServerLayer.httpServerLive
-    )
+  private val runtimeLive =
+    appLive >>> (RoutesLayer.apiRoutesLive >>> ServerLayer.serverLive ++ SpreadJobLayer.spreadJobLive)
+
+  def run: ZIO[Any, Throwable, Nothing] =
+    runtimeLive.launch
 }
