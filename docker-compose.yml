@@ -1,8 +1,8 @@
-name: arbitration
+name: arbitration-scala
 
 services:
   app:
-    container_name: arbitration-app
+    container_name: arbitration-scala-app
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,13 +12,13 @@ services:
       - postgres
 #      - otel-collector
     ports:
-      - "8080:80"
+      - "8080:8080"
       - "5005:5005"
     volumes:
       - .:/app
 
   postgres:
-    container_name: arbitration-postgres
+    container_name: arbitration-scala-postgres
     image: postgres:17
     environment:
       POSTGRES_PASSWORD: postgres
