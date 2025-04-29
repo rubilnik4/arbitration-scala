@@ -1,6 +1,6 @@
 package arbitration
 
-import arbitration.api.routes.{RoutesLayer, HttpServerLayer, ServerLayer}
+import arbitration.api.routes.{RoutesLayer, ServerLayer}
 import arbitration.application.commands.handlers.MarketCommandHandlerLayer
 import arbitration.application.environments.*
 import arbitration.application.jobs.SpreadJobLayer
@@ -9,9 +9,7 @@ import arbitration.application.queries.marketData.MarketDataLayer
 import arbitration.infrastructure.caches.MarketCacheLayer
 import arbitration.infrastructure.markets.BinanceMarketApiLayer
 import arbitration.infrastructure.repositories.PostgresMarketRepositoryLayer
-import zio.ZLayer
-import zio._
-import zio.http._
+import zio.*
 
 object MainAppLayer {
   private val appLive: ZLayer[Any, Throwable, AppEnv] =
