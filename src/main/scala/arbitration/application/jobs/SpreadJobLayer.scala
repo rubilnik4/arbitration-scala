@@ -9,9 +9,10 @@ object SpreadJobLayer {
     ZLayer.scoped {
       for {
         _ <- ZIO.logInfo("Starting spread job")
-        _ <- SpreadJob.spreadJob(SpreadState.Init())
-          .forkDaemon
-          .withFinalizer(_ => ZIO.logInfo("Spread job stopped"))
+        fiber <- SpreadJob.spreadJob(SpreadState.Init())
+          .forever
+          .forkScoped
+        _ <- fiber.await
       } yield ()
     }
 }

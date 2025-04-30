@@ -27,7 +27,10 @@ lazy val root = (project in file("."))
       "com.softwaremill.sttp.client3" %% "core" % "3.11.0",
       "com.softwaremill.sttp.client3" %% "zio-json" % "3.11.0",
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % "3.11.0",
-      "ch.qos.logback" % "logback-classic" % "1.5.18"
+      "ch.qos.logback" % "logback-classic" % "1.5.18",
+      "io.opentelemetry" % "opentelemetry-api" % "1.49.0",
+      "io.opentelemetry" % "opentelemetry-sdk" % "1.49.0",
+      "io.opentelemetry" % "opentelemetry-exporter-otlp" % "1.49.0"
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     scalacOptions += "-Dquill.macro.log=false"

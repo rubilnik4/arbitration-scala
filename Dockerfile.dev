@@ -1,0 +1,2 @@
+FROM busybox
+CMD echo "Dev mode - App is skipped"
