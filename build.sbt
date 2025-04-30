@@ -30,7 +30,8 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % "1.5.18",
       "io.opentelemetry" % "opentelemetry-api" % "1.49.0",
       "io.opentelemetry" % "opentelemetry-sdk" % "1.49.0",
-      "io.opentelemetry" % "opentelemetry-exporter-otlp" % "1.49.0"
+      "io.opentelemetry" % "opentelemetry-exporter-otlp" % "1.49.0",
+      "io.opentelemetry.instrumentation" % "opentelemetry-logback-appender-1.0" % "2.15.0-alpha"
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     scalacOptions += "-Dquill.macro.log=false"
