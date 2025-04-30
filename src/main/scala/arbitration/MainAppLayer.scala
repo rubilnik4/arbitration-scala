@@ -25,7 +25,7 @@ object MainAppLayer {
     )
 
   private val runtimeLive =
-    appLive >>> (RoutesLayer.apiRoutesLive >>> ServerLayer.serverLive ++ SpreadJobLayer.spreadJobLive)
+    appLive >>> (RoutesLayer.apiRoutesLive >>> ServerLayer.serverLive) ++ SpreadJobLayer.spreadJobLive
 
   def run: ZIO[Any, Throwable, Nothing] =
     runtimeLive.launch

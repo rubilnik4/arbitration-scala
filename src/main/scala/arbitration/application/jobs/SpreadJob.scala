@@ -4,7 +4,7 @@ import arbitration.application.commands.commands.SpreadCommand
 import arbitration.application.commands.handlers.SpreadCommandHandlerLive
 import arbitration.application.environments.AppEnv
 import arbitration.domain.models.{AssetId, AssetSpreadId, SpreadState}
-import zio.{Cause, Fiber, ZIO, ZLayer}
+import zio.{Cause, ZIO}
 
 object SpreadJob {
   private def computeSpread(state: SpreadState): ZIO[AppEnv, Nothing, SpreadState] =

@@ -9,10 +9,10 @@
     "assetLoadingDelay": "15 seconds"
   },
   "postgres": {
-    "jdbcUrl": "jdbc:postgresql://localhost:5432/postgres?user=postgres&password=postgres"
+    "connectionString": "jdbc:postgresql://localhost:5432/postgres?user=postgres&password=postgres"
   },
   "cache": {
-    "lastPriceExpiration": "30 seconds",
-    "lastSpreadExpiration": "30 seconds"
+    "priceExpiration": "30 seconds",
+    "spreadExpiration": "30 seconds"
   }
 }
