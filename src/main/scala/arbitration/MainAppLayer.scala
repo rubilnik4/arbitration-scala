@@ -4,6 +4,7 @@ import arbitration.api.routes.{RoutesLayer, ServerLayer}
 import arbitration.application.commands.handlers.MarketCommandHandlerLayer
 import arbitration.application.environments.*
 import arbitration.application.jobs.SpreadJobLayer
+import arbitration.application.logging.LoggingLayer
 import arbitration.application.queries.handlers.MarketQueryHandlerLayer
 import arbitration.application.queries.marketData.MarketDataLayer
 import arbitration.infrastructure.caches.MarketCacheLayer
@@ -25,7 +26,10 @@ object MainAppLayer {
     )
 
   private val runtimeLive =
-    appLive >>> (RoutesLayer.apiRoutesLive >>> ServerLayer.serverLive) ++ SpreadJobLayer.spreadJobLive
+    LoggingLayer.telemetryLive ++
+      appLive >>> 
+      (RoutesLayer.apiRoutesLive >>> ServerLayer.serverLive) ++ 
+      SpreadJobLayer.spreadJobLive
 
   def run: ZIO[Any, Throwable, Nothing] =
     runtimeLive.launch

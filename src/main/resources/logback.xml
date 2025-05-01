@@ -1,20 +1,16 @@
 <configuration>
-    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
-        <otelExporterEndpoint>http://localhost:4317</otelExporterEndpoint>
+    <appender name="OpenTelemetry" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+
+    </appender>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <!-- Корневой логгер -->
     <root level="DEBUG">
-        <appender-ref ref="OTEL"/>
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="OpenTelemetry"/>
+        <appender-ref ref="console"/>
     </root>
 </configuration>
