@@ -3,11 +3,14 @@ package arbitration.application.logging
 import io.opentelemetry.api
 import io.opentelemetry.api.OpenTelemetry as OtelSdk
 import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.api.logs.Severity
+import io.opentelemetry.context.Context
 import io.opentelemetry.exporter.otlp.logs.OtlpGrpcLogRecordExporter
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
-import io.opentelemetry.sdk.logs.SdkLoggerProvider
-import io.opentelemetry.sdk.logs.`export`.SimpleLogRecordProcessor
+import io.opentelemetry.sdk.common.CompletableResultCode
+import io.opentelemetry.sdk.logs.`export`.*
+import io.opentelemetry.sdk.logs.*
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
@@ -67,12 +70,13 @@ object LoggingLayer {
       )
     } yield sdk
   }
+  
 
   private val tracingLayer: URLayer[OtelSdk & ContextStorage, Tracing] =
     OpenTelemetry.tracing("arbitration-app")
 
   private val loggingLayer: URLayer[OtelSdk & ContextStorage, Unit] =
-    OpenTelemetry.logging("arbitration-app")
+    OpenTelemetry.logging("arbitration-app", LogLevel.Debug)
 
   private val contextLayer: ULayer[ContextStorage] =
     OpenTelemetry.contextZIO

@@ -32,5 +32,11 @@ object MainAppLayer {
       SpreadJobLayer.spreadJobLive
 
   def run: ZIO[Any, Throwable, Nothing] =
-    runtimeLive.launch
+    ZIO.logLevel(LogLevel.Debug) {
+      // Добавляем логирование старта/остановки
+      ZIO.logInfo("Starting application...") *>
+        runtimeLive.launch
+          .ensuring(ZIO.logInfo("Application stopped"))
+          .tapErrorCause(cause => ZIO.logErrorCause("Application failed", cause))
+    }
 }
