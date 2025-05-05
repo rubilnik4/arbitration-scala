@@ -26,17 +26,14 @@ object MainAppLayer {
     )
 
   private val runtimeLive =
-    LoggingLayer.telemetryLive ++
-      appLive >>> 
+    appLive >>>
+      LoggingLayer.telemetryLive ++
       (RoutesLayer.apiRoutesLive >>> ServerLayer.serverLive) ++ 
       SpreadJobLayer.spreadJobLive
 
   def run: ZIO[Any, Throwable, Nothing] =
-    ZIO.logLevel(LogLevel.Debug) {
-      // Добавляем логирование старта/остановки
-      ZIO.logInfo("Starting application...") *>
-        runtimeLive.launch
-          .ensuring(ZIO.logInfo("Application stopped"))
-          .tapErrorCause(cause => ZIO.logErrorCause("Application failed", cause))
-    }
+    ZIO.logInfo("Starting application...") *>
+      runtimeLive.launch
+        .ensuring(ZIO.logInfo("Application stopped"))
+        .tapErrorCause(cause => ZIO.logErrorCause("Application failed", cause))
 }

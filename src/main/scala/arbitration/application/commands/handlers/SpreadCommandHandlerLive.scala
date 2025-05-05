@@ -13,7 +13,6 @@ final class SpreadCommandHandlerLive extends SpreadCommandHandler {
     val assetSpreadId = AssetSpreadId.normalize(cmd.assetSpreadId)
 
     for {
-      env <- ZIO.environment[AppEnv]
       _ <- ZIO.logInfo(s"Executing spread command for $assetSpreadId")
 
       priceA <- getPrice(assetSpreadId.assetA)

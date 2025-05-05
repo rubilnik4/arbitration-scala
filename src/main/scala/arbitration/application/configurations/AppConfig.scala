@@ -7,7 +7,8 @@ import zio.config.derivation._
 final case class AppConfig(
   project: ProjectConfig,
   cache: CacheConfig,
-  postgres: Option[PostgresConfig]
+  postgres: Option[PostgresConfig],
+  telemetry: Option[TelemetryConfig]
 )
 
 object AppConfig {

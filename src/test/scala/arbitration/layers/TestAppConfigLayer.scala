@@ -17,6 +17,7 @@ object TestAppConfigLayer {
         assetLoadingDelay = 15.seconds
       ),
       postgres = None,
+      telemetry = None,
       cache = CacheConfig(
         priceExpiration = 1.minute,
         spreadExpiration = 1.minute

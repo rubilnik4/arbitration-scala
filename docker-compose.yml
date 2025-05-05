@@ -12,14 +12,18 @@ services:
     ports:
       - "8080:8080"
       - "5005:5005"
+    environment:
+      POSTGRES_HOST: arbitration-postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://arbitration-otel-collector:4317
+      LOG_LEVEL: DEBUG
     volumes:
       - .:/app
 
   postgres:
     container_name: arbitration-postgres
     image: postgres:17
-    environment:
-      POSTGRES_PASSWORD: postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
