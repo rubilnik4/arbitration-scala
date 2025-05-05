@@ -26,8 +26,8 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase]) exten
       spreadId <- saveSpread(spreadEntity)
     } yield spreadId)
       .tapBoth(
-        _ => ZIO.logDebug(s"Successfully save spread $spread to database"),
-        e => ZIO.logErrorCause(s"Failed to save spread $spread to database", Cause.fail(e))
+        e => ZIO.logErrorCause(s"Failed to save spread $spread to database", Cause.fail(e)),
+        _ => ZIO.logDebug(s"Successfully save spread $spread to database")
       )
 
   private def saveSpread(spreadEntity: SpreadEntity): ZIO[Any, MarketError, SpreadId] =

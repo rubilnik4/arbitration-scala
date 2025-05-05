@@ -7,7 +7,9 @@ final case class Spread(
     priceB: Price,
     value: BigDecimal,
     time: Instant
-)
+) {
+  override def toString: String = s"Spread:${priceA.assetId}-${priceB.assetId}, ${value}"
+}
 
 object Spread {
   def toAssetSpread(spread: Spread): AssetSpreadId =

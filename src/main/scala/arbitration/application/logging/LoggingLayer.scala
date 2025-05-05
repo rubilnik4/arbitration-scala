@@ -69,8 +69,7 @@ object LoggingLayer {
         )
       )
     } yield sdk
-  }
-  
+  }  
 
   private val tracingLayer: URLayer[OtelSdk & ContextStorage, Tracing] =
     OpenTelemetry.tracing("arbitration-app")
