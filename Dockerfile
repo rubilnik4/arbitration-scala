@@ -10,6 +10,5 @@ RUN sbt update
 COPY . .
 
 EXPOSE 8080
-EXPOSE 5005
 
-CMD ["sbt", "-jvm-debug", "5005", "run"]
+CMD ["sbt", "run"]

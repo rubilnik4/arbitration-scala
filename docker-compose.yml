@@ -11,9 +11,10 @@ services:
       - otel-collector
     ports:
       - "8080:8080"
-      - "5005:5005"
     environment:
       POSTGRES_HOST: arbitration-postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       OTEL_EXPORTER_OTLP_ENDPOINT: http://arbitration-otel-collector:4317

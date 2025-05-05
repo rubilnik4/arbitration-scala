@@ -1,5 +1,3 @@
-ThisBuild / version := "0.1.0-SNAPSHOT"
-
 ThisBuild / scalaVersion := "3.3.5"
 
 lazy val root = (project in file("."))
@@ -19,6 +17,7 @@ lazy val root = (project in file("."))
       "dev.zio" %% "zio-config" % "4.0.4",
       "dev.zio" %% "zio-config-magnolia" % "4.0.4",
       "dev.zio" %% "zio-config-typesafe" % "4.0.4",
+      "dev.zio" %% "zio-opentelemetry" % "3.1.4",
       "com.dimafeng" %% "testcontainers-scala-postgresql" % "0.43.0" % Test,
       "org.postgresql" % "postgresql" % "42.7.5",
       "org.flywaydb" % "flyway-core" % "11.8.0",
@@ -27,7 +26,6 @@ lazy val root = (project in file("."))
       "com.softwaremill.sttp.client3" %% "core" % "3.11.0",
       "com.softwaremill.sttp.client3" %% "zio-json" % "3.11.0",
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % "3.11.0",
-      "dev.zio" %% "zio-opentelemetry" % "3.1.4",
       "io.opentelemetry" % "opentelemetry-sdk" % "1.49.0",
       "io.opentelemetry" % "opentelemetry-exporter-otlp" % "1.49.0",
       "io.opentelemetry.semconv" % "opentelemetry-semconv" % "1.32.0"
