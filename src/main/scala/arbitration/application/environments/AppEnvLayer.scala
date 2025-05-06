@@ -2,6 +2,7 @@ package arbitration.application.environments
 
 import arbitration.application.commands.handlers.MarketCommandHandler
 import arbitration.application.configurations.AppConfig
+import arbitration.application.metrics.MarketMetrics
 import arbitration.application.queries.handlers.MarketQueryHandler
 import arbitration.application.queries.marketData.MarketData
 import arbitration.infrastructure.caches.MarketCache
@@ -13,7 +14,8 @@ object AppEnvLayer {
   val appEnvLive: ZLayer[
     AppConfig
       with MarketCache with MarketRepository with MarketData
-      with MarketApi with MarketQueryHandler with MarketCommandHandler,
+      with MarketApi with MarketQueryHandler with MarketCommandHandler
+      with MarketMetrics,
     Nothing,
     AppEnv
   ] =

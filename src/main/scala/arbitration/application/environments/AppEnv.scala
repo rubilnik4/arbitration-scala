@@ -2,6 +2,7 @@ package arbitration.application.environments
 
 import arbitration.application.commands.handlers.MarketCommandHandler
 import arbitration.application.configurations.AppConfig
+import arbitration.application.metrics.MarketMetrics
 import arbitration.application.queries.handlers.MarketQueryHandler
 import arbitration.application.queries.marketData.MarketData
 import arbitration.infrastructure.caches.MarketCache
@@ -16,4 +17,5 @@ trait AppEnv {
   def marketApi: MarketApi
   def marketQueryHandler: MarketQueryHandler
   def marketCommandHandler: MarketCommandHandler
+  def marketMetrics: MarketMetrics
 }

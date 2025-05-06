@@ -37,7 +37,7 @@ object MarketCacheLayer {
       } yield SpreadCacheLive(memoryCache)
     }
 
-  val marketCacheLive: ZLayer[MarketRepository with AppConfig, Throwable, MarketCache] =
+  val marketCacheLive: ZLayer[MarketRepository & AppConfig, Throwable, MarketCache] =
     (priceCacheLayer ++ spreadCacheLayer) >>> ZLayer.fromFunction {
       (price: PriceCache, spread: SpreadCache) =>
         MarketCacheLive(price, spread)

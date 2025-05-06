@@ -26,7 +26,9 @@ lazy val root = (project in file("."))
       "com.softwaremill.sttp.client3" %% "zio-json" % "3.11.0",
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % "3.11.0",
       "io.opentelemetry" % "opentelemetry-sdk" % "1.49.0",
+      "io.opentelemetry" % "opentelemetry-sdk-trace" % "1.49.0",
       "io.opentelemetry" % "opentelemetry-exporter-otlp" % "1.49.0",
+      "io.opentelemetry" % "opentelemetry-exporter-logging-otlp" % "1.49.0",
       "io.opentelemetry.semconv" % "opentelemetry-semconv" % "1.32.0",
       "org.slf4j" % "slf4j-nop" % "2.0.17"
     ),

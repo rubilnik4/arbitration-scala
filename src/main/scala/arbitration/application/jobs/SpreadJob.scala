@@ -12,21 +12,18 @@ object SpreadJob {
       val spreadAssetId = AssetSpreadId(
         AssetId(env.appConfig.project.assets.assetA),
         AssetId(env.appConfig.project.assets.assetB)
-      )
-
-      ZIO.logSpan("arbitration.compute-spread")  {
-        SpreadCommandHandlerLive().handle(SpreadCommand(state, spreadAssetId)).foldZIO(
-          err =>
-            ZIO.logAnnotate("result.status", "error") {
-              ZIO.logErrorCause("Failed to compute spread", Cause.fail(err)).as(state)
-            },
-          result =>
-            ZIO.logAnnotate("result.status", "success") {
-              ZIO.logAnnotate("spread.value", result.spread.value.toString) {
-                ZIO.logInfo(s"Spread computed: ${result.spread}").as(result.spreadState)
-              }
-            }
-        )
+      )      
+      val metrics = env.marketMetrics 
+      
+      ZIO.logSpan("arbitration.compute-spread") {
+        metrics.recordSpreadDuration {
+          for {           
+            result <- SpreadCommandHandlerLive().handle(SpreadCommand(state, spreadAssetId)).foldZIO(
+              err => ZIO.logErrorCause("Failed to compute spread", Cause.fail(err)).as(state),
+              result => ZIO.logInfo(s"Spread computed: ${result.spread}").as(result.spreadState)
+            )            
+          } yield result
+        }
       }
     }
 
