@@ -9,7 +9,6 @@ lazy val root = (project in file("."))
       "dev.zio" %% "zio-json" % "0.7.42",
       "dev.zio" %% "zio-http" % "3.2.0",
       "dev.zio" %% "zio-logging" % "2.5.0",
-      "dev.zio" %% "zio-logging-slf4j" % "2.5.0",
       "dev.zio" %% "zio-json" % "0.7.42",
       "dev.zio" %% "zio-cache" % "0.2.4",
       "dev.zio" %% "zio-test" % "2.1.17" % Test,
@@ -28,7 +27,8 @@ lazy val root = (project in file("."))
       "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % "3.11.0",
       "io.opentelemetry" % "opentelemetry-sdk" % "1.49.0",
       "io.opentelemetry" % "opentelemetry-exporter-otlp" % "1.49.0",
-      "io.opentelemetry.semconv" % "opentelemetry-semconv" % "1.32.0"
+      "io.opentelemetry.semconv" % "opentelemetry-semconv" % "1.32.0",
+      "org.slf4j" % "slf4j-nop" % "2.0.17"
     ),
     testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
     scalacOptions += "-Dquill.macro.log=false"
