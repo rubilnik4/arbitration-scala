@@ -13,16 +13,17 @@ import zio.http.endpoint.Endpoint
 
 object PriceEndpoint {
   private final val path = "price"
+  private final val tag = "price"
 
   private val getPriceEndpoint =
-    Endpoint(GET / path)
-      .query(HttpCodec.query[String]("assetId"))
+    Endpoint(GET / path / string("assetId"))
       .out[PriceResponse]
       .outErrors(
         HttpCodec.error[MarketErrorResponse](Status.BadRequest),
         HttpCodec.error[MarketErrorResponse](Status.NotFound),
         HttpCodec.error[MarketErrorResponse](Status.InternalServerError)
       )
+      .tag(tag)
       
   private val getPriceRoute: Route[AppEnv, Nothing] = getPriceEndpoint.implement { assetId =>
     val priceQuery = PriceQuery(AssetId(assetId))
@@ -34,6 +35,9 @@ object PriceEndpoint {
           price => PriceMapper.toResponse(price))
     } yield result
   }
+
+  val allEndpoints: List[Endpoint[_, _, _, _, _]] =
+    List(getPriceEndpoint)
 
   val allRoutes: Routes[AppEnv, Response] =
     Routes(getPriceRoute)
