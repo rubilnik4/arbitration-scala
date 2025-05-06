@@ -84,17 +84,16 @@ object LoggingLayer {
     OpenTelemetry.tracing(appName)
 
   private def loggingLayer: ZLayer[OtelSdk & ContextStorage & AppEnv, Throwable, Unit] =
-    OpenTelemetry.logging(appName, LogLevel.Debug)
-//    ZLayer.scoped {
-//      for {
-//        env <- ZIO.service[AppEnv]
-//        telemetryConfig = getTelemetryConfig(env.appConfig)
-//        logLevel <- ZIO.fromOption(LogLevelMapper.parseLogLevel(telemetryConfig.logLevel))
-//          .orElseFail(new RuntimeException(s"Invalid log level: ${telemetryConfig.logLevel}"))
-//
-//        _ <- OpenTelemetry.logging(appName, logLevel).build
-//      } yield ()
-//    }
+    ZLayer.scoped {
+      for {
+        env <- ZIO.service[AppEnv]
+        telemetryConfig = getTelemetryConfig(env.appConfig)
+        logLevel <- ZIO.fromOption(LogLevelMapper.parseLogLevel(telemetryConfig.logLevel))
+          .orElseFail(new RuntimeException(s"Invalid log level: ${telemetryConfig.logLevel}"))
+
+        _ <- OpenTelemetry.logging(appName, logLevel).build
+      } yield ()
+    }
 
   private val contextLayer: ULayer[ContextStorage] =
     OpenTelemetry.contextZIO

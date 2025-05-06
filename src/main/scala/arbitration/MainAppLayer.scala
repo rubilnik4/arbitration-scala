@@ -25,11 +25,12 @@ object MainAppLayer {
       AppEnvLayer.appEnvLive
     )
 
-  private val runtimeLive =    
+  private val runtimeLive =
     appLive >>>
-      LoggingLayer.telemetryLive ++
-      (RoutesLayer.apiRoutesLive >>> ServerLayer.serverLive) ++ 
-      SpreadJobLayer.spreadJobLive
+      (LoggingLayer.telemetryLive >>>
+        (RoutesLayer.apiRoutesLive >>> ServerLayer.serverLive) ++ SpreadJobLayer.spreadJobLive)
+
+
 
   def run: ZIO[Any, Throwable, Nothing] =
     ZIO.logInfo("Starting application...") *>
