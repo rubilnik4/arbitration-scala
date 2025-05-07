@@ -11,6 +11,7 @@ services:
       - otel-collector
     ports:
       - "8080:8080"
+      - "9464:9464"
     environment:
       POSTGRES_HOST: arbitration-postgres
       POSTGRES_PORT: 5432
