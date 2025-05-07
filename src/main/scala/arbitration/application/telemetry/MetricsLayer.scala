@@ -1,17 +1,24 @@
 package arbitration.application.telemetry
 
-import arbitration.application.telemetry.TelemetryResources.telemetryResource
+import arbitration.application.configurations.AppConfig
+import arbitration.application.telemetry.TelemetryResources.{getTelemetryConfig, telemetryResource}
 import io.opentelemetry.exporter.prometheus.PrometheusHttpServer
 import io.opentelemetry.sdk.metrics.SdkMeterProvider
 import zio.*
 
 object MetricsLayer {
-  val metricsLive: ZLayer[Any, Throwable, SdkMeterProvider] = ZLayer.scoped {
-    for {     
+  val metricsLive: ZLayer[AppConfig, Throwable, SdkMeterProvider] = ZLayer.scoped {
+    for {
+      appConfig <- ZIO.service[AppConfig]
+      telemetryConfig <- getTelemetryConfig
+      port <- ZIO.attempt(telemetryConfig.prometheusPort.toInt)
+        .orElseFail(new RuntimeException(s"Invalid prometheus port: ${telemetryConfig.prometheusPort}"))
+
       prometheusServer <- ZIO.fromAutoCloseable(
         ZIO.succeed(
           PrometheusHttpServer.builder()
-            .setPort(9464)
+            .setHost("0.0.0.0")
+            .setPort(port)
             .build()
         )
       )

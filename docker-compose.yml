@@ -20,6 +20,7 @@ services:
       POSTGRES_PASSWORD: postgres
       OTEL_EXPORTER_OTLP_ENDPOINT: http://arbitration-otel-collector:4317
       LOG_LEVEL: DEBUG
+      PROMETHEUS_PORT: 9464
     volumes:
       - .:/app
 
