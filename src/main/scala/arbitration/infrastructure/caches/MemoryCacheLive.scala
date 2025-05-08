@@ -9,7 +9,6 @@ final class MemoryCacheLive[K, V](cache: Cache[K, MarketError, V]) extends Memor
   override def getOrFetch(key: K): ZIO[Any, MarketError, V] =
     cache
       .get(key)
-      .zipLeft(ZIO.logDebug(s"Successfully removed cache for key $key"))
       .tapBoth(
         e => ZIO.logErrorCause(s"Failed to get cache for key $key", Cause.fail(e)),
         _ => ZIO.logDebug(s"Successfully got cache for key $key")

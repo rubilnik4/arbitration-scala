@@ -54,8 +54,8 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase]) exten
         }
       )
       .tapBoth(
-        _ => ZIO.logDebug(s"Successfully get price $assetId from database"),
-        e => ZIO.logErrorCause(s"Failed to get price $assetId from database", Cause.fail(e))
+        e => ZIO.logErrorCause(s"Failed to get price $assetId from database", Cause.fail(e)),
+        _ => ZIO.logDebug(s"Successfully get price $assetId from database")
       )
 
   override def getLastSpread(assetSpreadId: AssetSpreadId): ZIO[Any, MarketError, Spread] =
@@ -69,7 +69,7 @@ final class PostgresMarketRepositoryLive(quill: Quill.Postgres[SnakeCase]) exten
         }
       )
       .tapBoth(
-        _ => ZIO.logDebug(s"Successfully get spread $assetSpreadId from database"),
-        e => ZIO.logErrorCause(s"Failed to get spread $assetSpreadId from database", Cause.fail(e))
+        e => ZIO.logErrorCause(s"Failed to get spread $assetSpreadId from database", Cause.fail(e)),
+        _ => ZIO.logDebug(s"Successfully get spread $assetSpreadId from database")
       )
 }
