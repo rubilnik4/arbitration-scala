@@ -1,7 +1,6 @@
 package arbitration.application.telemetry
 
 import arbitration.application.configurations.AppConfig
-import arbitration.application.environments.AppEnv
 import arbitration.application.telemetry.TelemetryResources.*
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter
 import io.opentelemetry.sdk.trace.SdkTracerProvider

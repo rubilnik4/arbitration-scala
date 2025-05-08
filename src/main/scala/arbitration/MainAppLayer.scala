@@ -5,7 +5,7 @@ import arbitration.application.commands.handlers.MarketCommandHandlerLayer
 import arbitration.application.configurations.AppConfig
 import arbitration.application.environments.*
 import arbitration.application.jobs.SpreadJobLayer
-import arbitration.application.metrics.MarketMetricsLayer
+import arbitration.application.metrics.MarketMeterLayer
 import arbitration.application.queries.handlers.MarketQueryHandlerLayer
 import arbitration.application.queries.marketData.MarketDataLayer
 import arbitration.application.telemetry.TelemetryLayer
@@ -15,13 +15,14 @@ import arbitration.infrastructure.repositories.PostgresMarketRepositoryLayer
 import zio.*
 import zio.http.Server
 import zio.telemetry.opentelemetry.metrics.Meter
+import zio.telemetry.opentelemetry.tracing.Tracing
 
 object MainAppLayer {
-  private val appLive: ZLayer[AppConfig & Meter, Throwable, AppEnv] = {
+  private val appLive: ZLayer[AppConfig & Meter & Tracing, Throwable, AppEnv] = {
     val repositoryLayer = PostgresMarketRepositoryLayer.postgresMarketRepositoryLive
     val cacheLayer = repositoryLayer >>> MarketCacheLayer.marketCacheLive
     val combinedLayers =
-      MarketMetricsLayer.MarketMetricsLive ++
+      MarketMeterLayer.MarketMeterLive ++
         repositoryLayer ++
         cacheLayer ++
         BinanceMarketApiLayer.binanceMarketApiLive ++

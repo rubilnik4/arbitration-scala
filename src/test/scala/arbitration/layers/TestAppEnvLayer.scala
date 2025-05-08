@@ -19,7 +19,8 @@ object TestAppEnvLayer {
       BinanceMarketApiLayer.binanceMarketApiLive,
       MarketQueryHandlerLayer.marketQueryHandlerLive,
       MarketCommandHandlerLayer.marketCommandHandlerLive,
-      TestMarketMetrics.testMarketMetricsLive,
+      TestMarketMeterLayer.testMarketMeterLive,
+      TestMarketTracingLayer.telemetryLive,
       AppEnvLayer.appEnvLive
     )
 }

@@ -54,7 +54,7 @@ object TelemetryLayer {
   private val contextLayer: ULayer[ContextStorage] =
     OpenTelemetry.contextZIO
 
-  val telemetryLive: ZLayer[AppConfig, Throwable, Meter] =
+  val telemetryLive: ZLayer[AppConfig, Throwable, Meter & Tracing] =
     (otelSdkLive ++ contextLayer ++ ZLayer.environment[AppConfig]) >>>
       (meteringLayer ++ loggingLayer ++ tracingLayer)
 }

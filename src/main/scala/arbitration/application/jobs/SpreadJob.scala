@@ -4,7 +4,20 @@ import arbitration.application.commands.commands.SpreadCommand
 import arbitration.application.commands.handlers.SpreadCommandHandlerLive
 import arbitration.application.environments.AppEnv
 import arbitration.domain.models.{AssetId, AssetSpreadId, SpreadState}
-import zio.{Cause, ZIO}
+import io.opentelemetry.exporter.logging.otlp.OtlpJsonLoggingSpanExporter
+import io.opentelemetry.api.trace.SpanKind
+import io.opentelemetry.sdk.trace.SdkTracerProvider
+import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
+import io.opentelemetry.sdk.resources.Resource
+import io.opentelemetry.semconv.ServiceAttributes
+import io.opentelemetry.api.common.Attributes
+import io.opentelemetry.sdk.OpenTelemetrySdk
+import io.opentelemetry.api
+import zio.*
+import zio.telemetry.opentelemetry.tracing.Tracing
+import zio.telemetry.opentelemetry.OpenTelemetry
+import zio.telemetry.opentelemetry.OpenTelemetry.tracing
+import zio.telemetry.opentelemetry.context.ContextStorage
 
 object SpreadJob {
   private def computeSpread(state: SpreadState): ZIO[AppEnv, Nothing, SpreadState] =
@@ -12,17 +25,16 @@ object SpreadJob {
       val spreadAssetId = AssetSpreadId(
         AssetId(env.appConfig.project.assets.assetA),
         AssetId(env.appConfig.project.assets.assetB)
-      )      
-      val metrics = env.marketMetrics 
-      
-      ZIO.logSpan("arbitration.compute-spread") {
+      )
+      val metrics = env.marketMeter
+      val tracing  = env.marketTracing
+
+      tracing.root("arbitration.compute-spread", SpanKind.INTERNAL) {
         metrics.recordSpreadDuration {
-          for {           
-            result <- SpreadCommandHandlerLive().handle(SpreadCommand(state, spreadAssetId)).foldZIO(
-              err => ZIO.logErrorCause("Failed to compute spread", Cause.fail(err)).as(state),
-              result => ZIO.logInfo(s"Spread computed: ${result.spread}").as(result.spreadState)
-            )            
-          } yield result
+          SpreadCommandHandlerLive().handle(SpreadCommand(state, spreadAssetId)).foldZIO(
+            err => ZIO.logErrorCause("Failed to compute spread", Cause.fail(err)).as(state),
+            result => ZIO.logInfo(s"Spread computed: ${result.spread}").as(result.spreadState)
+          )
         }
       }
     }

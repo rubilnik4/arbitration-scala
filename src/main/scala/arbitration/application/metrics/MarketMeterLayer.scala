@@ -3,8 +3,8 @@ package arbitration.application.metrics
 import zio.telemetry.opentelemetry.metrics.Meter
 import zio.{Clock, ZIO, ZLayer}
 
-object MarketMetricsLayer {
-  val MarketMetricsLive: ZLayer[Meter, Nothing, MarketMetrics] =
+object MarketMeterLayer {
+  val MarketMeterLive: ZLayer[Meter, Nothing, MarketMeter] =
     ZLayer.fromZIO {
       for {
         meter <- ZIO.service[Meter]
@@ -13,7 +13,7 @@ object MarketMetricsLayer {
           description = Some("Duration of spread computation in milliseconds"),
           unit = Some("ms")
         )
-      } yield new MarketMetrics {
+      } yield new MarketMeter {
         def recordSpreadDuration[R, E, A](zio: ZIO[R, E, A]): ZIO[R, E, A] =
           for {
             start <- Clock.nanoTime
