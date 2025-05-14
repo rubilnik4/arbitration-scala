@@ -2,9 +2,9 @@ package arbitration.api.endpoints
 
 import arbitration.api.dto.markets.*
 import arbitration.application.commands.commands.SpreadCommand
-import arbitration.application.environments.AppEnv
 import arbitration.application.queries.queries.SpreadQuery
 import arbitration.domain.models.{AssetId, AssetSpreadId, SpreadState}
+import arbitration.layers.AppEnv
 import zio.ZIO
 import zio.http.*
 import zio.http.Method.*
@@ -29,6 +29,8 @@ object SpreadEndpoint {
     val assetSpreadId = AssetSpreadId(AssetId(assetIdA), AssetId(assetIdB))
     val spreadQuery = SpreadQuery(assetSpreadId)
     for {
+      _ <- ZIO.logInfo(s"Received request for assert spread: $assetSpreadId")
+
       spreadQueryHandler <- ZIO.serviceWith[AppEnv](_.marketQueryHandler.spreadQueryHandler)
       result <- spreadQueryHandler.handle(spreadQuery)
         .mapBoth(
@@ -53,6 +55,8 @@ object SpreadEndpoint {
     val assetSpreadId = AssetSpreadId(AssetId(request.assetIdA), AssetId(request.assetIdB))
     val spreadCommand = SpreadCommand(SpreadState.Init(), assetSpreadId)
     for {
+      _ <- ZIO.logInfo(s"Received request for computing spread for assets: $assetSpreadId")
+
       spreadCommandHandler <- ZIO.serviceWith[AppEnv](_.marketCommandHandler.spreadCommandHandler)
       result <- spreadCommandHandler.handle(spreadCommand)
         .mapBoth(

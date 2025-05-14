@@ -1,10 +1,10 @@
-package arbitration.application.metrics
+package arbitration.application.telemetry.metrics
 
 import zio.telemetry.opentelemetry.metrics.Meter
 import zio.{Clock, ZIO, ZLayer}
 
 object MarketMeterLayer {
-  val MarketMeterLive: ZLayer[Meter, Nothing, MarketMeter] =
+  val marketMeterLive: ZLayer[Meter, Nothing, MarketMeter] =
     ZLayer.fromZIO {
       for {
         meter <- ZIO.service[Meter]

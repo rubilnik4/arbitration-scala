@@ -1,10 +1,11 @@
-package arbitration.application.environments
+package arbitration.layers
 
 import arbitration.application.commands.handlers.MarketCommandHandler
 import arbitration.application.configurations.AppConfig
-import arbitration.application.metrics.MarketMeter
 import arbitration.application.queries.handlers.MarketQueryHandler
 import arbitration.application.queries.marketData.MarketData
+import arbitration.application.telemetry.metrics.MarketMeter
+import arbitration.application.telemetry.tracing.MarketTracing
 import arbitration.infrastructure.caches.MarketCache
 import arbitration.infrastructure.markets.MarketApi
 import arbitration.infrastructure.repositories.MarketRepository
@@ -19,5 +20,5 @@ final case class AppEnvLive (
   marketQueryHandler: MarketQueryHandler,
   marketCommandHandler: MarketCommandHandler,
   marketMeter: MarketMeter,
-  marketTracing: Tracing
+  marketTracing: MarketTracing
 ) extends AppEnv

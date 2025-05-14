@@ -1,7 +1,7 @@
 package arbitration.application.commands.handlers
 
-import arbitration.application.environments.AppEnv
 import arbitration.domain.MarketError
+import arbitration.layers.AppEnv
 import zio.ZIO
 
 trait CommandHandler[-Cmd, +Res] {

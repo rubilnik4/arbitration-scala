@@ -1,7 +1,9 @@
 package arbitration.layers
 
-import arbitration.application.telemetry.TelemetryResources.*
+import arbitration.application.telemetry.tracing.{MarketTracing, MarketTracingLayer}
+import arbitration.infrastructure.telemetry.TelemetryResources.{telemetryAppName, telemetryResource}
 import io.opentelemetry.api.OpenTelemetry as OtelSdk
+import io.opentelemetry.context.propagation.TextMapPropagator
 import io.opentelemetry.exporter.logging.otlp.OtlpJsonLoggingSpanExporter
 import io.opentelemetry.sdk.OpenTelemetrySdk
 import io.opentelemetry.sdk.trace.SdkTracerProvider
@@ -54,7 +56,9 @@ object TestMarketTracingLayer {
   private val contextLayer: ULayer[ContextStorage] =
     OpenTelemetry.contextZIO
 
-  val telemetryLive: ZLayer[Any, Throwable, Tracing] =
-    (otelSdkLive ++ contextLayer) >>> tracingLayer
+  val marketTracingLive: ZLayer[Any, Throwable, MarketTracing] =
+    (otelSdkLive ++ contextLayer) >>> 
+      (tracingLayer) >>>
+      MarketTracingLayer.marketTracingLive
 }
 

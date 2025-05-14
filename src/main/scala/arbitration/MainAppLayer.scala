@@ -3,15 +3,17 @@ package arbitration
 import arbitration.api.routes.{RoutesLayer, ServerLayer}
 import arbitration.application.commands.handlers.MarketCommandHandlerLayer
 import arbitration.application.configurations.AppConfig
-import arbitration.application.environments.*
 import arbitration.application.jobs.SpreadJobLayer
-import arbitration.application.metrics.MarketMeterLayer
 import arbitration.application.queries.handlers.MarketQueryHandlerLayer
 import arbitration.application.queries.marketData.MarketDataLayer
-import arbitration.application.telemetry.TelemetryLayer
+import arbitration.application.telemetry.metrics.MarketMeterLayer
+import arbitration.application.telemetry.tracing.MarketTracingLayer
 import arbitration.infrastructure.caches.MarketCacheLayer
 import arbitration.infrastructure.markets.BinanceMarketApiLayer
 import arbitration.infrastructure.repositories.PostgresMarketRepositoryLayer
+import arbitration.infrastructure.telemetry.TelemetryLayer
+import arbitration.layers.{AppConfigLayer, AppEnv, AppEnvLayer}
+import io.opentelemetry.context.propagation.TextMapPropagator
 import zio.*
 import zio.http.Server
 import zio.telemetry.opentelemetry.metrics.Meter
@@ -22,7 +24,8 @@ object MainAppLayer {
     val repositoryLayer = PostgresMarketRepositoryLayer.postgresMarketRepositoryLive
     val cacheLayer = repositoryLayer >>> MarketCacheLayer.marketCacheLive
     val combinedLayers =
-      MarketMeterLayer.MarketMeterLive ++
+      MarketMeterLayer.marketMeterLive ++
+        MarketTracingLayer.marketTracingLive ++
         repositoryLayer ++
         cacheLayer ++
         BinanceMarketApiLayer.binanceMarketApiLive ++
@@ -32,7 +35,7 @@ object MainAppLayer {
     combinedLayers >>> AppEnvLayer.appEnvLive
   }
 
-  private val runtimeLive: ZLayer[Any, Throwable, Server & Unit] =
+  private val runtimeLive: ZLayer[Any, Throwable, Server] =
     AppConfigLayer.appConfigLive >>>
       (TelemetryLayer.telemetryLive >>>
         (appLive >>>

@@ -1,7 +1,7 @@
-package arbitration.application.telemetry
+package arbitration.infrastructure.telemetry
 
 import arbitration.application.configurations.{AppConfig, TelemetryConfig}
-import arbitration.application.environments.AppEnv
+import arbitration.layers.AppEnv
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.sdk.resources.Resource
 import io.opentelemetry.semconv.ServiceAttributes

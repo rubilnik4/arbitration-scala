@@ -1,9 +1,9 @@
 package arbitration.application.queries.handlers
 
-import arbitration.application.environments.AppEnv
 import arbitration.application.queries.queries.SpreadQuery
 import arbitration.domain.MarketError
 import arbitration.domain.models.{AssetSpreadId, Spread}
+import arbitration.layers.AppEnv
 import zio.ZIO
 
 final class SpreadQueryHandlerLive extends SpreadQueryHandler {

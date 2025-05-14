@@ -1,7 +1,7 @@
-package arbitration.application.telemetry
+package arbitration.infrastructure.telemetry
 
 import arbitration.application.configurations.AppConfig
-import arbitration.application.telemetry.TelemetryResources.{getTelemetryConfig, telemetryResource}
+import TelemetryResources.{getTelemetryConfig, telemetryResource}
 import io.opentelemetry.exporter.prometheus.PrometheusHttpServer
 import io.opentelemetry.sdk.metrics.SdkMeterProvider
 import zio.*

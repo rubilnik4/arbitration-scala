@@ -1,4 +1,4 @@
-package arbitration.application.telemetry
+package arbitration.infrastructure.telemetry
 
 import zio.LogLevel
 

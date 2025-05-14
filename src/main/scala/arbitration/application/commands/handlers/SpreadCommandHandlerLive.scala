@@ -1,9 +1,9 @@
 package arbitration.application.commands.handlers
 
 import arbitration.application.commands.commands.SpreadCommand
-import arbitration.application.environments.AppEnv
 import arbitration.domain.MarketError
 import arbitration.domain.models.*
+import arbitration.layers.AppEnv
 import zio.ZIO
 
 import java.time.Instant

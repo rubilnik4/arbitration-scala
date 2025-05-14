@@ -2,12 +2,11 @@ package arbitration.application
 
 import arbitration.application.commands.commands.SpreadCommand
 import arbitration.application.commands.handlers.SpreadCommandHandlerLive
-import arbitration.application.environments.AppEnv
 import arbitration.application.queries.handlers.{PriceQueryHandlerLive, SpreadQueryHandlerLive}
 import arbitration.application.queries.queries.{PriceQuery, SpreadQuery}
 import arbitration.domain.MarketError
 import arbitration.domain.models.*
-import arbitration.layers.TestAppEnvLayer
+import arbitration.layers.{AppEnv, TestAppEnvLayer}
 import zio.test.TestAspect.sequential
 import zio.test.{Spec, TestEnvironment, ZIOSpecDefault, assertTrue}
 import zio.{Scope, ZIO}

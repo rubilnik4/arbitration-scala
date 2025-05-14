@@ -1,14 +1,14 @@
-package arbitration.application.environments
+package arbitration.layers
 
 import arbitration.application.commands.handlers.MarketCommandHandler
 import arbitration.application.configurations.AppConfig
-import arbitration.application.metrics.MarketMeter
 import arbitration.application.queries.handlers.MarketQueryHandler
 import arbitration.application.queries.marketData.MarketData
+import arbitration.application.telemetry.metrics.MarketMeter
+import arbitration.application.telemetry.tracing.MarketTracing
 import arbitration.infrastructure.caches.MarketCache
 import arbitration.infrastructure.markets.MarketApi
 import arbitration.infrastructure.repositories.MarketRepository
-import zio.telemetry.opentelemetry.tracing.Tracing
 
 trait AppEnv {
   def appConfig: AppConfig
@@ -19,5 +19,5 @@ trait AppEnv {
   def marketQueryHandler: MarketQueryHandler
   def marketCommandHandler: MarketCommandHandler
   def marketMeter: MarketMeter
-  def marketTracing: Tracing
+  def marketTracing: MarketTracing
 }

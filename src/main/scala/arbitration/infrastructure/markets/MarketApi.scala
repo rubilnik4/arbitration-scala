@@ -1,8 +1,8 @@
 package arbitration.infrastructure.markets
 
-import arbitration.application.environments.AppEnv
 import arbitration.domain.MarketError
 import arbitration.domain.models.{AssetId, Price}
+import arbitration.layers.AppEnv
 import zio.ZIO
 
 trait MarketApi {

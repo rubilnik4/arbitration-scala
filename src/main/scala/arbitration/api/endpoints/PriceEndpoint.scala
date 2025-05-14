@@ -1,9 +1,9 @@
 package arbitration.api.endpoints
 
 import arbitration.api.dto.markets.*
-import arbitration.application.environments.AppEnv
 import arbitration.application.queries.queries.PriceQuery
 import arbitration.domain.models.AssetId
+import arbitration.layers.AppEnv
 import zio.ZIO
 import zio.http.*
 import zio.http.Method.*
@@ -28,6 +28,8 @@ object PriceEndpoint {
   private val getPriceRoute: Route[AppEnv, Nothing] = getPriceEndpoint.implement { assetId =>
     val priceQuery = PriceQuery(AssetId(assetId))
     for {
+      _ <- ZIO.logInfo(s"Received request for assert price: $assetId")
+      
       priceQueryHandler <- ZIO.serviceWith[AppEnv](_.marketQueryHandler.priceQueryHandler)
       result <- priceQueryHandler.handle(priceQuery)
         .mapBoth(

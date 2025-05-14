@@ -1,9 +1,9 @@
 package arbitration.application.queries.handlers
 
-import arbitration.application.environments.AppEnv
 import arbitration.application.queries.queries.PriceQuery
 import arbitration.domain.MarketError
 import arbitration.domain.models.Price
+import arbitration.layers.AppEnv
 import zio.ZIO
 
 final class PriceQueryHandlerLive extends PriceQueryHandler {

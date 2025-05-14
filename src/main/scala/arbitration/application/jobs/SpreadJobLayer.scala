@@ -1,7 +1,7 @@
 package arbitration.application.jobs
 
-import arbitration.application.environments.AppEnv
 import arbitration.domain.models.SpreadState
+import arbitration.layers.AppEnv
 import zio.{ZIO, ZLayer}
 
 object SpreadJobLayer {

@@ -1,7 +1,7 @@
-package arbitration.application.telemetry
+package arbitration.infrastructure.telemetry
 
 import arbitration.application.configurations.AppConfig
-import arbitration.application.telemetry.TelemetryResources.*
+import arbitration.infrastructure.telemetry.TelemetryResources.*
 import io.opentelemetry.api
 import io.opentelemetry.api.OpenTelemetry as OtelSdk
 import io.opentelemetry.sdk.OpenTelemetrySdk

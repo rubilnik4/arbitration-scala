@@ -1,10 +1,8 @@
 package arbitration.application.jobs
 
 import arbitration.application.commands.commands.SpreadCommand
-import arbitration.application.commands.handlers.SpreadCommandHandlerLive
-import arbitration.application.environments.AppEnv
 import arbitration.domain.models.{AssetId, AssetSpreadId, SpreadState}
-import io.opentelemetry.api
+import arbitration.layers.AppEnv
 import io.opentelemetry.api.trace.SpanKind
 import zio.*
 
@@ -15,17 +13,19 @@ object SpreadJob {
         AssetId(env.appConfig.project.assets.assetA),
         AssetId(env.appConfig.project.assets.assetB)
       )
-      val metrics = env.marketMeter
-      val tracing  = env.marketTracing
 
-      tracing.root("arbitration.compute-spread", SpanKind.INTERNAL) {
-        metrics.recordSpreadDuration {
-          SpreadCommandHandlerLive().handle(SpreadCommand(state, spreadAssetId)).foldZIO(
+      val spreadLogic = for {
+        _ <- ZIO.logInfo(s"Starting job spread computation for: $spreadAssetId")
+        spreadState <- env.marketCommandHandler.spreadCommandHandler.handle(SpreadCommand(state, spreadAssetId))
+          .foldZIO(
             err => ZIO.logErrorCause("Failed to compute spread", Cause.fail(err)).as(state),
             result => ZIO.logInfo(s"Spread computed: ${result.spread}").as(result.spreadState)
           )
-        }
-      }
+      } yield spreadState
+
+      spreadLogic
+        @@ env.marketTracing.tracing.aspects.root("arbitration.compute-spread", SpanKind.INTERNAL)
+        @@ env.marketMeter.aspects.spreadDuration
     }
 
   def spreadJob(initialState: SpreadState): ZIO[AppEnv, Nothing, Unit] =

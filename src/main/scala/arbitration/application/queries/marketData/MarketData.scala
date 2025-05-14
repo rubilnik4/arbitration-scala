@@ -1,8 +1,8 @@
 package arbitration.application.queries.marketData
 
-import arbitration.application.environments.AppEnv
 import arbitration.domain.MarketError
 import arbitration.domain.models.{AssetId, AssetSpreadId, Price, Spread}
+import arbitration.layers.AppEnv
 import zio.ZIO
 
 trait MarketData {

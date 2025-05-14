@@ -1,6 +1,6 @@
 package arbitration.layers
 
-import arbitration.application.metrics.MarketMeter
+import arbitration.application.telemetry.metrics.MarketMeter
 import zio.{UIO, ZIO, ZLayer}
 
 object TestMarketMeterLayer {

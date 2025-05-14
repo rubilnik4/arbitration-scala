@@ -1,6 +1,6 @@
 package arbitration.api.routes
 
-import arbitration.application.environments.AppEnv
+import arbitration.layers.AppEnv
 import zio.{ZIO, ZLayer}
 import zio.http.*
 import zio.http.Server

@@ -1,7 +1,6 @@
 package arbitration.layers
 
 import arbitration.application.commands.handlers.MarketCommandHandlerLayer
-import arbitration.application.environments.{AppEnv, AppEnvLayer}
 import arbitration.application.queries.handlers.MarketQueryHandlerLayer
 import arbitration.application.queries.marketData.MarketDataLayer
 import arbitration.infrastructure.caches.MarketCacheLayer
@@ -20,7 +19,7 @@ object TestAppEnvLayer {
       MarketQueryHandlerLayer.marketQueryHandlerLive,
       MarketCommandHandlerLayer.marketCommandHandlerLive,
       TestMarketMeterLayer.testMarketMeterLive,
-      TestMarketTracingLayer.telemetryLive,
+      TestMarketTracingLayer.marketTracingLive,
       AppEnvLayer.appEnvLive
     )
 }

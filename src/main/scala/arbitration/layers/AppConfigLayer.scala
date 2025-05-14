@@ -1,4 +1,4 @@
-package arbitration.application.environments
+package arbitration.layers
 
 import arbitration.application.configurations.AppConfig
 import zio.*
